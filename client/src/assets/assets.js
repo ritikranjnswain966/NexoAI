@@ -1,4 +1,3 @@
-import logo from "./logo.svg";
 import logo_full from "./logo_full.svg";
 import logo_full_dark from "./logo_full_dark.svg";
 import search_icon from "./search_icon.svg";
@@ -14,7 +13,6 @@ import diamond_icon from "./diamond_icon.svg";
 import gallery_icon from "./gallery_icon.svg";
 
 export const assets = {
-  logo,
   logo_full,
   search_icon,
   user_icon,
