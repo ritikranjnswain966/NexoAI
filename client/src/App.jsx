@@ -26,7 +26,7 @@ const App = () => {
       {!isMenuOpen && <img src={assets.menu_icon} className='absolute top-3 left-3 w-8 h-8 cursor-pointer md:hidden not-dark:invert' onClick={() => setIsMenuOpen(true)} />}
 
       {user ? (
-        <div className='min-h-screen bg-gradient-to-br from-white via-gray-50 to-gray-100 dark:bg-gradient-to-br dark:from-gray-900 dark:via-gray-900 dark:to-black dark:text-gray-100 transition-colors duration-500'>
+        <div className='min-h-screen bg-gradient-to-br from-white via-gray-50 to-gray-100 dark:bg-gradient-to-br dark:from-[#000000] dark:via-[#001a09] dark:to-[#000000] dark:text-gray-100 transition-colors duration-500'>
         <div className='flex h-screen w-screen'>
           <Sidebar isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} />
           <Routes>
@@ -38,9 +38,7 @@ const App = () => {
         </div>
       </div>
       ) : (
-        <div className='bg-gradient-to-b from-[#242124] to-[#000000] flex items-center justify-center h-screen w-screen'>
-          <Login />
-        </div>
+        <Login />
       )}
       
 

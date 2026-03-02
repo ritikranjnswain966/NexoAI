@@ -50,11 +50,11 @@ const Credits = () => {
       
       <div className='flex flex-wrap justify-center gap-8'>
         {plans.map((plan) => (
-          <div key={plan._id} className={`border border-gray-200 dark:border-purple-700 rounded-lg shadow hover:shadow-lg transition-shadow p-6 min-w-[300px] flex flex-col ${plan._id === "pro" ? "bg-purple-50 dark:bg-purple-900" : "bg-white dark:bg-transparent"}`}>
+          <div key={plan._id} className={`border border-gray-200 dark:border-[#00FF41]/20 rounded-lg shadow hover:shadow-lg hover:dark:shadow-[0_0_20px_rgba(0,255,65,0.1)] transition-shadow p-6 min-w-[300px] flex flex-col ${plan._id === "pro" ? "bg-green-50 dark:bg-[#00FF41]/5" : "bg-white dark:bg-transparent"}`}>
             <div className='flex-1'>
               <h3 className='text-xl font-semibold text-gray-900 dark:text-white mb-2'>{plan.name}</h3>
-              <p className='text-2xl font-bold text-purple-600 dark:text-purple-300 mb-4'>${plan.price}
-                <span className='text-base font-normal text-gray-600 dark:text-purple-200'>{' '}/{plan.credits} credits</span>
+              <p className='text-2xl font-bold text-green-600 dark:text-white mb-4'>${plan.price}
+                <span className='text-base font-normal text-gray-600 dark:text-gray-400'>{' '}/{plan.credits} credits</span>
               </p>
               <ul className='space-y-2 mb-6'>
                 {plan.features.map((feature, index) => (
@@ -62,7 +62,7 @@ const Credits = () => {
                 ))}
               </ul>
             </div>
-            <button onClick={()=> toast.promise(purchasePlan(plan._id), {loading: 'Processing...'})} className='w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 rounded-lg transition-colors'>
+            <button onClick={()=> toast.promise(purchasePlan(plan._id), {loading: 'Processing...'})} className='w-full bg-[#00FF41] hover:bg-[#00cc34] text-black font-semibold py-2 rounded-lg transition-colors'>
               Buy Now
             </button>
           </div>
