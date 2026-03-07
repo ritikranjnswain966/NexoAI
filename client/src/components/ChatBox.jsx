@@ -64,14 +64,14 @@ const ChatBox = () => {
   },[messages])
 
   return (
-    <div className='flex-1 flex flex-col justify-between m-5 md:m-10 xl:mx-30 max-md:mt-14 2xl:pr-40 bg-gradient-to-br from-white via-indigo-50/40 to-violet-50/30 dark:from-transparent dark:via-transparent dark:to-transparent rounded-2xl p-4'>
+    <div className='flex-1 flex flex-col justify-between m-5 md:m-10 xl:mx-30 max-md:mt-14 2xl:pr-40 bg-gradient-to-br from-white via-blue-50/40 to-violet-50/30 dark:from-transparent dark:via-transparent dark:to-transparent rounded-2xl p-4'>
 
       {/*Chat Messages */}
       <div ref={containerRef} className='flex-1 mb-5 overflow-y-scroll'>
         {messages.length === 0 && (
           <div className='h-full flex flex-col items-center justify-center gap-2 text-primary'>
-            <img src={theme === 'dark' ? assets.logo_full : assets.logo_full_dark} alt="" className='w-full max-w-56 sm:max-w-68' />
-            <p className='mt-5 text-4xl sm:text-6xl text-center text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-violet-500 to-purple-500 dark:from-[#0D9B3E] dark:via-[#00FF41] dark:to-[#39FF14]'>Ask me...</p>
+            <img src={theme === 'dark' ? assets.logo_full : assets.logo_full_dark} alt="" className='w-full max-w-56 sm:max-w-68 logo-recolor' />
+            <p className='mt-5 text-4xl sm:text-6xl text-center text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 via-blue-500 to-violet-500 dark:from-blue-400 dark:via-violet-400 dark:to-pink-400'>Ask me...</p>
           </div>
         )}
 
@@ -90,14 +90,14 @@ const ChatBox = () => {
       {/*Mode Toggle + Publish */}
       <div className='flex flex-col items-center gap-3 w-full max-w-2xl mx-auto'>
         
-        {/*Modern Segmented Toggle*/}
+        {/*Segmented Toggle*/}
         <div className='flex items-center gap-3'>
-          <div className='relative flex bg-slate-100 dark:bg-[#0a1a0d] rounded-full p-1 border border-indigo-100 dark:border-[#00FF41]/15'>
-            <div className={`absolute top-1 h-[calc(100%-8px)] w-[calc(50%-4px)] bg-gradient-to-r from-indigo-500 to-violet-500 dark:from-[#0D9B3E] dark:to-[#00FF41] rounded-full transition-all duration-300 dark:shadow-[0_0_12px_rgba(0,255,65,0.3)] ${mode === 'image' ? 'left-[calc(50%+2px)]' : 'left-1'}`}></div>
-            <button type='button' onClick={() => setMode('text')} className={`relative z-10 px-5 py-1.5 text-xs font-semibold rounded-full transition-all duration-300 cursor-pointer ${mode === 'text' ? 'text-white dark:text-black' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'}`}>
+          <div className='relative flex bg-slate-100 dark:bg-[#0f172a] rounded-full p-1 border border-blue-100 dark:border-blue-500/15'>
+            <div className={`absolute top-1 h-[calc(100%-8px)] w-[calc(50%-4px)] bg-gradient-to-r from-blue-500 to-violet-500 rounded-full transition-all duration-300 shadow-[0_0_12px_rgba(59,130,246,0.3)] ${mode === 'image' ? 'left-[calc(50%+2px)]' : 'left-1'}`}></div>
+            <button type='button' onClick={() => setMode('text')} className={`relative z-10 px-5 py-1.5 text-xs font-semibold rounded-full transition-all duration-300 cursor-pointer ${mode === 'text' ? 'text-white' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'}`}>
               📝 Text
             </button>
-            <button type='button' onClick={() => setMode('image')} className={`relative z-10 px-5 py-1.5 text-xs font-semibold rounded-full transition-all duration-300 cursor-pointer ${mode === 'image' ? 'text-white dark:text-black' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'}`}>
+            <button type='button' onClick={() => setMode('image')} className={`relative z-10 px-5 py-1.5 text-xs font-semibold rounded-full transition-all duration-300 cursor-pointer ${mode === 'image' ? 'text-white' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'}`}>
               🖼️ Image
             </button>
           </div>
@@ -106,7 +106,7 @@ const ChatBox = () => {
             <label className='flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 cursor-pointer select-none'>
               <div className='relative'>
                 <input type="checkbox" className='sr-only peer' checked={isPublished} onChange={(e) => setIsPublished(e.target.checked)} />
-                <div className='w-8 h-4 bg-gray-300 dark:bg-gray-700 rounded-full peer-checked:bg-indigo-500 dark:peer-checked:bg-[#00FF41] transition-all'></div>
+                <div className='w-8 h-4 bg-gray-300 dark:bg-gray-700 rounded-full peer-checked:bg-blue-500 transition-all'></div>
                 <span className='absolute left-0.5 top-0.5 w-3 h-3 bg-white rounded-full transition-transform peer-checked:translate-x-4'></span>
               </div>
               Publish
@@ -130,28 +130,28 @@ const ChatBox = () => {
             gap: 12px;
             width: 100%;
             padding: 6px 6px 6px 20px;
-            background: linear-gradient(135deg, #ffffff 0%, #f5f3ff 50%, #eef2ff 100%);
-            border: 1.5px solid rgba(99, 102, 241, 0.2);
+            background: linear-gradient(135deg, #ffffff 0%, #eff6ff 50%, #eef2ff 100%);
+            border: 1.5px solid rgba(59, 130, 246, 0.2);
             border-radius: 999px;
             backdrop-filter: blur(12px);
             transition: all 0.3s ease;
-            box-shadow: 0 2px 12px rgba(99, 102, 241, 0.06);
+            box-shadow: 0 2px 12px rgba(59, 130, 246, 0.06);
           }
 
           .dark .chatbox-input-form {
-            background: #0a1a0d;
-            border-color: rgba(0, 255, 65, 0.3);
+            background: #0f172a;
+            border-color: rgba(59, 130, 246, 0.3);
             box-shadow: none;
           }
 
           .chatbox-input-form:focus-within {
-            border-color: rgba(99, 102, 241, 0.5);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1), 0 4px 20px rgba(99, 102, 241, 0.1);
+            border-color: rgba(59, 130, 246, 0.5);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1), 0 4px 20px rgba(59, 130, 246, 0.1);
           }
 
           .dark .chatbox-input-form:focus-within {
-            border-color: rgba(0, 255, 65, 0.5);
-            box-shadow: 0 0 0 3px rgba(0, 255, 65, 0.08), 0 0 25px rgba(0, 255, 65, 0.12);
+            border-color: rgba(96, 165, 250, 0.5);
+            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.08), 0 0 25px rgba(96, 165, 250, 0.12);
           }
 
           .chatbox-input {
@@ -186,26 +186,26 @@ const ChatBox = () => {
             height: 44px;
             border-radius: 50%;
             border: none;
-            background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 60%, #A78BFA 100%);
+            background: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 60%, #A78BFA 100%);
             cursor: pointer;
             flex-shrink: 0;
             transition: all 0.3s ease;
-            box-shadow: 0 2px 12px rgba(99, 102, 241, 0.3);
+            box-shadow: 0 2px 12px rgba(59, 130, 246, 0.3);
             overflow: hidden;
           }
 
           .dark .chatbox-send-btn {
-            background: linear-gradient(135deg, #0D9B3E 0%, #00FF41 60%, #39FF14 100%);
-            box-shadow: 0 2px 12px rgba(0, 255, 65, 0.25);
+            background: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 60%, #A78BFA 100%);
+            box-shadow: 0 2px 12px rgba(96, 165, 250, 0.25);
           }
 
           .chatbox-send-btn:hover:not(:disabled) {
             transform: scale(1.08);
-            box-shadow: 0 4px 24px rgba(99, 102, 241, 0.45);
+            box-shadow: 0 4px 24px rgba(59, 130, 246, 0.45);
           }
 
           .dark .chatbox-send-btn:hover:not(:disabled) {
-            box-shadow: 0 4px 24px rgba(0, 255, 65, 0.45);
+            box-shadow: 0 4px 24px rgba(96, 165, 250, 0.45);
           }
 
           .chatbox-send-btn:active:not(:disabled) {

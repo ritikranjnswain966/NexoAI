@@ -81,7 +81,7 @@ const Loading = () => {
           <img
             src={assets.logo_full}
             alt="Nexo"
-            className="loading-logo"
+            className="loading-logo logo-recolor"
           />
         </div>
 
@@ -125,7 +125,7 @@ const Loading = () => {
         .loading-screen {
           position: fixed;
           inset: 0;
-          background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 30%, #e0e7ff 60%, #f1f5f9 100%);
+          background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 30%, #dbeafe 60%, #f1f5f9 100%);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -134,7 +134,7 @@ const Loading = () => {
         }
 
         .dark .loading-screen {
-          background: linear-gradient(135deg, #000000 0%, #000a04 30%, #001a09 60%, #000000 100%);
+          background: linear-gradient(135deg, #030712 0%, #0c1222 30%, #0f172a 60%, #030712 100%);
         }
 
         /* Animated grid background */
@@ -142,16 +142,16 @@ const Loading = () => {
           position: absolute;
           inset: 0;
           background-image:
-            linear-gradient(rgba(99, 102, 241, 0.06) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(99, 102, 241, 0.06) 1px, transparent 1px);
+            linear-gradient(rgba(59, 130, 246, 0.06) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(59, 130, 246, 0.06) 1px, transparent 1px);
           background-size: 60px 60px;
           animation: gridMove 8s linear infinite;
         }
 
         .dark .loading-grid {
           background-image:
-            linear-gradient(rgba(0, 255, 65, 0.03) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(0, 255, 65, 0.03) 1px, transparent 1px);
+            linear-gradient(rgba(59, 130, 246, 0.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(59, 130, 246, 0.03) 1px, transparent 1px);
         }
 
         @keyframes gridMove {
@@ -170,16 +170,16 @@ const Loading = () => {
           position: absolute;
           width: 3px;
           height: 3px;
-          background: #6366F1;
+          background: #3B82F6;
           border-radius: 50%;
           opacity: 0;
           animation: particleFloat linear infinite;
-          box-shadow: 0 0 6px rgba(99, 102, 241, 0.5), 0 0 12px rgba(99, 102, 241, 0.25);
+          box-shadow: 0 0 6px rgba(59, 130, 246, 0.5), 0 0 12px rgba(59, 130, 246, 0.25);
         }
 
         .dark .particle {
-          background: #00FF41;
-          box-shadow: 0 0 6px #00FF41, 0 0 12px #00FF4180;
+          background: #60A5FA;
+          box-shadow: 0 0 6px rgba(96, 165, 250, 0.6), 0 0 12px rgba(96, 165, 250, 0.3);
         }
 
         @keyframes particleFloat {
@@ -201,7 +201,7 @@ const Loading = () => {
         .loading-orb-1 {
           width: 400px;
           height: 400px;
-          background: #818CF8;
+          background: #60A5FA;
           top: -100px;
           right: -100px;
           animation-delay: 0s;
@@ -219,16 +219,16 @@ const Loading = () => {
         .loading-orb-3 {
           width: 200px;
           height: 200px;
-          background: #6366F1;
+          background: #3B82F6;
           top: 50%;
           left: 50%;
           transform: translate(-50%, -50%);
           animation-delay: 3s;
         }
 
-        .dark .loading-orb-1 { background: #00FF41; opacity: 0.15; }
-        .dark .loading-orb-2 { background: #39FF14; opacity: 0.15; }
-        .dark .loading-orb-3 { background: #0D9B3E; opacity: 0.15; }
+        .dark .loading-orb-1 { background: #3B82F6; opacity: 0.15; }
+        .dark .loading-orb-2 { background: #8B5CF6; opacity: 0.15; }
+        .dark .loading-orb-3 { background: #06B6D4; opacity: 0.15; }
 
         @keyframes orbPulse {
           0%, 100% { opacity: 0.1; transform: scale(1); }
@@ -274,17 +274,17 @@ const Loading = () => {
           width: 120px;
           position: relative;
           z-index: 2;
-          filter: drop-shadow(0 0 20px rgba(99, 102, 241, 0.3));
+          filter: hue-rotate(130deg) saturate(1.2) drop-shadow(0 0 20px rgba(59, 130, 246, 0.3));
           animation: logoPulse 3s ease-in-out infinite;
         }
 
         .dark .loading-logo {
-          filter: drop-shadow(0 0 20px rgba(0, 255, 65, 0.4));
+          filter: hue-rotate(130deg) saturate(1.2) drop-shadow(0 0 20px rgba(96, 165, 250, 0.4));
         }
 
         @keyframes logoPulse {
-          0%, 100% { filter: drop-shadow(0 0 20px rgba(99, 102, 241, 0.3)); transform: scale(1); }
-          50% { filter: drop-shadow(0 0 40px rgba(99, 102, 241, 0.5)); transform: scale(1.05); }
+          0%, 100% { filter: hue-rotate(130deg) saturate(1.2) drop-shadow(0 0 20px rgba(59, 130, 246, 0.3)); transform: scale(1); }
+          50% { filter: hue-rotate(130deg) saturate(1.2) drop-shadow(0 0 40px rgba(59, 130, 246, 0.5)); transform: scale(1.05); }
         }
 
         .dark .loading-logo {
@@ -292,23 +292,23 @@ const Loading = () => {
         }
 
         @keyframes logoPulseDark {
-          0%, 100% { filter: drop-shadow(0 0 20px rgba(0, 255, 65, 0.4)); transform: scale(1); }
-          50% { filter: drop-shadow(0 0 40px rgba(0, 255, 65, 0.7)); transform: scale(1.05); }
+          0%, 100% { filter: hue-rotate(130deg) saturate(1.2) drop-shadow(0 0 20px rgba(96, 165, 250, 0.4)); transform: scale(1); }
+          50% { filter: hue-rotate(130deg) saturate(1.2) drop-shadow(0 0 40px rgba(96, 165, 250, 0.7)); transform: scale(1.05); }
         }
 
         .loading-logo-ring {
           position: absolute;
           inset: 0;
           border: 2px solid transparent;
-          border-top-color: #6366F1;
-          border-right-color: rgba(99, 102, 241, 0.25);
+          border-top-color: #3B82F6;
+          border-right-color: rgba(59, 130, 246, 0.25);
           border-radius: 50%;
           animation: ringRotate 2s linear infinite;
         }
 
         .dark .loading-logo-ring {
-          border-top-color: #00FF41;
-          border-right-color: #00FF4140;
+          border-top-color: #60A5FA;
+          border-right-color: rgba(96, 165, 250, 0.25);
         }
 
         .loading-logo-ring-2 {
@@ -321,9 +321,9 @@ const Loading = () => {
         }
 
         .dark .loading-logo-ring-2 {
-          border-top-color: #39FF14;
+          border-top-color: #A78BFA;
           border-right-color: transparent;
-          border-bottom-color: #39FF1440;
+          border-bottom-color: rgba(167, 139, 250, 0.25);
         }
 
         @keyframes ringRotate {
@@ -342,15 +342,15 @@ const Loading = () => {
           position: absolute;
           width: 8px;
           height: 8px;
-          background: #6366F1;
+          background: #3B82F6;
           border-radius: 50%;
-          box-shadow: 0 0 10px rgba(99, 102, 241, 0.5), 0 0 20px rgba(99, 102, 241, 0.25);
+          box-shadow: 0 0 10px rgba(59, 130, 246, 0.5), 0 0 20px rgba(59, 130, 246, 0.25);
           animation: hexPulse 1.5s ease-in-out infinite;
         }
 
         .dark .hex-dot {
-          background: #00FF41;
-          box-shadow: 0 0 10px #00FF41, 0 0 20px #00FF4160;
+          background: #60A5FA;
+          box-shadow: 0 0 10px rgba(96, 165, 250, 0.6), 0 0 20px rgba(96, 165, 250, 0.3);
         }
 
         .hex-dot:nth-child(1) { top: 0; left: 50%; transform: translateX(-50%); animation-delay: 0s; }
@@ -387,26 +387,26 @@ const Loading = () => {
           position: relative;
           width: 100%;
           height: 3px;
-          background: rgba(99, 102, 241, 0.12);
+          background: rgba(59, 130, 246, 0.12);
           border-radius: 4px;
           overflow: visible;
         }
 
         .dark .loading-progress-track {
-          background: rgba(0, 255, 65, 0.1);
+          background: rgba(59, 130, 246, 0.1);
         }
 
         .loading-progress-bar {
           height: 100%;
-          background: linear-gradient(90deg, #6366F1, #8B5CF6, #A78BFA);
+          background: linear-gradient(90deg, #3B82F6, #8B5CF6, #A78BFA);
           border-radius: 4px;
           transition: width 0.4s ease-out;
-          box-shadow: 0 0 10px rgba(99, 102, 241, 0.4);
+          box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
         }
 
         .dark .loading-progress-bar {
-          background: linear-gradient(90deg, #0D9B3E, #00FF41, #39FF14);
-          box-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+          background: linear-gradient(90deg, #3B82F6, #8B5CF6, #A78BFA);
+          box-shadow: 0 0 10px rgba(96, 165, 250, 0.5);
         }
 
         .loading-progress-glow {
@@ -415,7 +415,7 @@ const Loading = () => {
           transform: translate(-50%, -50%);
           width: 12px;
           height: 12px;
-          background: #6366F1;
+          background: #3B82F6;
           border-radius: 50%;
           filter: blur(4px);
           transition: left 0.4s ease-out;
@@ -423,7 +423,7 @@ const Loading = () => {
         }
 
         .dark .loading-progress-glow {
-          background: #00FF41;
+          background: #60A5FA;
         }
 
         .loading-progress-info {
@@ -435,23 +435,23 @@ const Loading = () => {
         }
 
         .loading-status {
-          color: rgba(99, 102, 241, 0.7);
+          color: rgba(59, 130, 246, 0.7);
           letter-spacing: 0.5px;
         }
 
         .dark .loading-status {
-          color: rgba(0, 255, 65, 0.6);
+          color: rgba(96, 165, 250, 0.6);
         }
 
         .loading-percent {
-          color: #6366F1;
+          color: #3B82F6;
           font-weight: 600;
-          text-shadow: 0 0 8px rgba(99, 102, 241, 0.4);
+          text-shadow: 0 0 8px rgba(59, 130, 246, 0.4);
         }
 
         .dark .loading-percent {
-          color: #00FF41;
-          text-shadow: 0 0 8px rgba(0, 255, 65, 0.5);
+          color: #60A5FA;
+          text-shadow: 0 0 8px rgba(96, 165, 250, 0.5);
         }
 
         /* Terminal text */
@@ -462,41 +462,41 @@ const Loading = () => {
           font-family: 'Courier New', monospace;
           font-size: 13px;
           padding: 10px 20px;
-          background: rgba(99, 102, 241, 0.05);
-          border: 1px solid rgba(99, 102, 241, 0.12);
+          background: rgba(59, 130, 246, 0.05);
+          border: 1px solid rgba(59, 130, 246, 0.12);
           border-radius: 8px;
           backdrop-filter: blur(10px);
         }
 
         .dark .loading-terminal {
-          background: rgba(0, 255, 65, 0.03);
-          border-color: rgba(0, 255, 65, 0.1);
+          background: rgba(59, 130, 246, 0.03);
+          border-color: rgba(96, 165, 250, 0.1);
         }
 
         .terminal-prompt {
-          color: #6366F1;
+          color: #3B82F6;
           font-weight: bold;
         }
 
         .dark .terminal-prompt {
-          color: #00FF41;
+          color: #60A5FA;
         }
 
         .terminal-text {
-          color: rgba(99, 102, 241, 0.7);
+          color: rgba(59, 130, 246, 0.7);
         }
 
         .dark .terminal-text {
-          color: rgba(0, 255, 65, 0.7);
+          color: rgba(96, 165, 250, 0.7);
         }
 
         .terminal-cursor {
-          color: #6366F1;
+          color: #3B82F6;
           animation: cursorBlink 1s step-end infinite;
         }
 
         .dark .terminal-cursor {
-          color: #00FF41;
+          color: #60A5FA;
         }
 
         @keyframes cursorBlink {

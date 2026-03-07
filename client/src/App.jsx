@@ -31,7 +31,7 @@ const App = () => {
       )}
 
       {user ? (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/30 dark:bg-gradient-to-br dark:from-[#000000] dark:via-[#001a09] dark:to-[#000000] dark:text-gray-100 transition-colors duration-500">
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30 dark:bg-gradient-to-br dark:from-[#030712] dark:via-[#0f172a] dark:to-[#030712] dark:text-gray-100 transition-colors duration-500">
           <div className="flex h-screen w-screen">
             <Sidebar isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} />
             <Routes>

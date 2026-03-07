@@ -32,23 +32,23 @@ const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
     }
 
     return (
-        <div className={`flex flex-col h-screen min-w-72 p-5 max-md:bg-white max-md:dark:bg-[#000a04] bg-gradient-to-b from-white via-slate-50/80 to-indigo-50/40 dark:bg-none dark:bg-linear-to-b dark:from-[#000a04]/90 dark:to-[#000000]/95 border-r border-slate-200/70 dark:border-[#00FF41]/10 backdrop-blur-3xl transition-all duration-500 max-md:absolute left-0 z-50 ${!isMenuOpen && 'max-md:-translate-x-full'}`}>
+        <div className={`flex flex-col h-screen min-w-72 p-5 max-md:bg-white max-md:dark:bg-[#0c1222] bg-gradient-to-b from-white via-slate-50/80 to-blue-50/40 dark:bg-none dark:bg-linear-to-b dark:from-[#0c1222]/90 dark:to-[#030712]/95 border-r border-slate-200/70 dark:border-blue-500/10 backdrop-blur-3xl transition-all duration-500 max-md:absolute left-0 z-50 ${!isMenuOpen && 'max-md:-translate-x-full'}`}>
 
             {/*Logo*/}
             <div className='flex items-center gap-2 mb-2'>
-                <img src={theme === 'dark' ? assets.logo_full : assets.logo_full_dark} alt="" className='w-full max-w-40' />
+                <img src={theme === 'dark' ? assets.logo_full : assets.logo_full_dark} alt="" className='w-full max-w-40 logo-recolor' />
             </div>
 
             {/*New chat button*/}
             <button onClick={(e) => {
                 console.log("New Chat Button Clicked in Sidebar!");
                 createNewChat(e);
-            }} className='flex justify-center items-center w-full py-3 mt-6 text-white dark:text-black font-semibold bg-indigo-500 dark:bg-gradient-to-r dark:from-[#0D9B3E] dark:via-[#00FF41] dark:to-[#39FF14] text-sm rounded-xl cursor-pointer transition-all duration-300 dark:shadow-[0_0_20px_rgba(0,255,65,0.3)] hover:bg-indigo-600 hover:dark:shadow-[0_0_40px_rgba(0,255,65,0.6)] hover:scale-[1.02] active:scale-[0.98]'>
+            }} className='flex justify-center items-center w-full py-3 mt-6 text-white font-semibold bg-gradient-to-r from-blue-500 via-violet-500 to-purple-500 text-sm rounded-xl cursor-pointer transition-all duration-300 shadow-[0_4px_20px_rgba(59,130,246,0.3)] hover:shadow-[0_4px_30px_rgba(59,130,246,0.5)] hover:scale-[1.02] active:scale-[0.98]'>
                 <span className='mr-2 text-lg font-light'>+</span> New Chat
             </button>
 
             {/*Search Conversation */}
-            <div className='flex items-center gap-3 px-4 py-2.5 mt-5 bg-white dark:bg-[#0a1a0d] rounded-xl transition-all duration-300 border border-slate-200 dark:border-[#00FF41]/10 focus-within:border-indigo-400 dark:focus-within:border-[#00FF41]/40 focus-within:ring-2 focus-within:ring-indigo-100 dark:focus-within:ring-transparent'>
+            <div className='flex items-center gap-3 px-4 py-2.5 mt-5 bg-white dark:bg-[#0f172a] rounded-xl transition-all duration-300 border border-slate-200 dark:border-blue-500/10 focus-within:border-blue-400 dark:focus-within:border-blue-500/40 focus-within:ring-2 focus-within:ring-blue-100 dark:focus-within:ring-transparent'>
                 <img src={assets.search_icon} className='w-4 opacity-50 not-dark:invert' alt="" />
                 <input onChange={(e) => setSearch(e.target.value)} value={search} type="text" placeholder='Search...' className='flex-1 text-sm bg-transparent placeholder:text-gray-400 text-gray-700 dark:text-white outline-none' />
             </div>
@@ -58,7 +58,7 @@ const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
             <div className='flex-1 overflow-y-scroll mt-2 text-sm space-y-1 custom-scrollbar'>
                 {
                     chats.filter((chat) => chat.messages[0] ? chat.messages[0]?.content.toLowerCase().includes(search.toLowerCase()) : chat.name.toLowerCase().includes(search.toLowerCase())).map((chat) => (
-                        <div onClick={()=>{navigate('/'); setSelectedChat(chat); setIsMenuOpen(false)}} key={chat._id} className='p-2.5 px-3 rounded-xl cursor-pointer flex justify-between items-center group transition-all duration-200 hover:bg-white dark:hover:bg-[#00FF41]/5 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white border border-transparent hover:border-slate-200 dark:hover:border-[#00FF41]/5 hover:shadow-sm'>
+                        <div onClick={()=>{navigate('/'); setSelectedChat(chat); setIsMenuOpen(false)}} key={chat._id} className='p-2.5 px-3 rounded-xl cursor-pointer flex justify-between items-center group transition-all duration-200 hover:bg-white dark:hover:bg-blue-500/5 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white border border-transparent hover:border-slate-200 dark:hover:border-blue-500/5 hover:shadow-sm'>
                             <div className='flex-1 min-w-0'>
                                 <p className='truncate w-full font-medium text-[13px]'>
                                     {chat.messages.length > 0 ? chat.messages[0].content.slice(0, 32) : chat.name}
@@ -74,7 +74,7 @@ const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
             <div className='border-t border-slate-200 dark:border-white/10 mt-2 mb-3'></div>
 
             {/*Community Images */}
-            <div onClick={() => { navigate('/community'); setIsMenuOpen(false) }} className='flex items-center gap-3 p-2.5 px-3 rounded-xl cursor-pointer group hover:bg-white dark:hover:bg-[#00FF41]/5 transition-all duration-200 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:shadow-sm'>
+            <div onClick={() => { navigate('/community'); setIsMenuOpen(false) }} className='flex items-center gap-3 p-2.5 px-3 rounded-xl cursor-pointer group hover:bg-white dark:hover:bg-blue-500/5 transition-all duration-200 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:shadow-sm'>
                 <div className='w-8 h-8 flex items-center justify-center rounded-lg bg-violet-50 dark:bg-transparent'>
                     <img src={assets.gallery_icon} className='w-4 opacity-70 group-hover:opacity-100 not-dark:invert transition-opacity' alt="" />
                 </div>
@@ -82,7 +82,7 @@ const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
             </div>
 
             {/*Credit Purchases Option */}
-            <div onClick={() => { navigate('/credits'); setIsMenuOpen(false)}} className='flex items-center gap-3 p-2.5 px-3 mt-1 rounded-xl cursor-pointer group hover:bg-white dark:hover:bg-[#00FF41]/5 transition-all duration-200 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:shadow-sm'>
+            <div onClick={() => { navigate('/credits'); setIsMenuOpen(false)}} className='flex items-center gap-3 p-2.5 px-3 mt-1 rounded-xl cursor-pointer group hover:bg-white dark:hover:bg-blue-500/5 transition-all duration-200 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:shadow-sm'>
                 <div className='w-8 h-8 flex items-center justify-center rounded-lg bg-amber-50 dark:bg-transparent'>
                     <img src={assets.diamond_icon} className='w-4 opacity-70 group-hover:opacity-100 dark:invert transition-opacity' alt="" />
                 </div>
@@ -93,23 +93,23 @@ const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
             </div>
 
             {/*Dark Mode Toggle*/}
-            <div className='flex items-center justify-between gap-2 p-3 mt-3 bg-white dark:bg-transparent border border-slate-200 dark:border-[#00FF41]/15 rounded-xl'>
+            <div className='flex items-center justify-between gap-2 p-3 mt-3 bg-white dark:bg-transparent border border-slate-200 dark:border-blue-500/15 rounded-xl'>
                 <div className='flex items-center gap-2.5 text-sm text-gray-600 dark:text-gray-300'>
                     <img src={assets.theme_icon} className='w-4 not-dark:invert' alt="" />
                     <p>Dark Mode</p>
                 </div>
                 <label className='relative inline-flex cursor-pointer'>
                     <input onChange={() => setTheme(theme === 'dark' ? 'light' : 'dark')} type="checkbox" className='sr-only peer' checked={theme === 'dark'} />
-                    <div className='w-9 h-5 bg-slate-200 rounded-full peer-checked:bg-indigo-500 dark:peer-checked:bg-green-700 transition-all'></div>
+                    <div className='w-9 h-5 bg-slate-200 rounded-full peer-checked:bg-blue-500 transition-all'></div>
                     <span className='absolute left-1 top-1 w-3 h-3 bg-white rounded-full transition-transform peer-checked:translate-x-4 shadow-sm'></span>
                 </label>
             </div>
 
             {/*User Account */}
-            <div className='flex items-center gap-3 p-3 mt-3 rounded-xl cursor-pointer group bg-white dark:bg-[#00FF41]/[0.03] border border-slate-200 dark:border-[#00FF41]/10 hover:border-indigo-200 dark:hover:border-[#00FF41]/20 transition-all duration-300 hover:shadow-sm'>
+            <div className='flex items-center gap-3 p-3 mt-3 rounded-xl cursor-pointer group bg-white dark:bg-blue-500/[0.03] border border-slate-200 dark:border-blue-500/10 hover:border-blue-200 dark:hover:border-blue-500/20 transition-all duration-300 hover:shadow-sm'>
                 <div className='relative'>
-                    <div className='absolute inset-[-2px] rounded-full bg-gradient-to-r from-indigo-400 to-violet-400 dark:from-[#0D9B3E] dark:to-[#39FF14] opacity-70'></div>
-                    <img src={assets.user_icon} className='w-9 h-9 rounded-full relative z-10 border-2 border-white dark:border-[#000a04]' alt="" />
+                    <div className='absolute inset-[-2px] rounded-full bg-gradient-to-r from-cyan-400 to-violet-400 opacity-70'></div>
+                    <img src={assets.user_icon} className='w-9 h-9 rounded-full relative z-10 border-2 border-white dark:border-[#0c1222]' alt="" />
                 </div>
                 <div className='flex-1 min-w-0'>
                     <p className='text-sm font-semibold text-gray-800 dark:text-white truncate'>{user ? user.name : 'Login your account'}</p>

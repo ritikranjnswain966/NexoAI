@@ -68,7 +68,7 @@ const Login = () => {
                 <div className="login-logo-section">
                     <div className="login-logo-wrapper">
                         <div className="login-logo-glow" />
-                        <img src={assets.logo_full} alt="Nexo" className="login-logo-img" />
+                        <img src={assets.logo_full} alt="Nexo" className="login-logo-img logo-recolor" />
                     </div>
                 </div>
 
@@ -213,7 +213,7 @@ const Login = () => {
                 .login-page {
                     position: fixed;
                     inset: 0;
-                    background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 30%, #e0e7ff 60%, #f1f5f9 100%);
+                    background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 30%, #dbeafe 60%, #f1f5f9 100%);
                     display: flex;
                     align-items: center;
                     justify-content: center;
@@ -222,7 +222,7 @@ const Login = () => {
                 }
 
                 .dark .login-page {
-                    background: linear-gradient(135deg, #000000 0%, #000a04 30%, #001a09 60%, #000000 100%);
+                    background: linear-gradient(135deg, #030712 0%, #0c1222 30%, #0f172a 60%, #030712 100%);
                 }
 
                 /* Background grid */
@@ -230,16 +230,16 @@ const Login = () => {
                     position: absolute;
                     inset: 0;
                     background-image:
-                        linear-gradient(rgba(99, 102, 241, 0.06) 1px, transparent 1px),
-                        linear-gradient(90deg, rgba(99, 102, 241, 0.06) 1px, transparent 1px);
+                        linear-gradient(rgba(59, 130, 246, 0.06) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(59, 130, 246, 0.06) 1px, transparent 1px);
                     background-size: 60px 60px;
                     animation: loginGridMove 12s linear infinite;
                 }
 
                 .dark .login-bg-grid {
                     background-image:
-                        linear-gradient(rgba(0, 255, 65, 0.03) 1px, transparent 1px),
-                        linear-gradient(90deg, rgba(0, 255, 65, 0.03) 1px, transparent 1px);
+                        linear-gradient(rgba(59, 130, 246, 0.03) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(59, 130, 246, 0.03) 1px, transparent 1px);
                 }
 
                 @keyframes loginGridMove {
@@ -258,7 +258,7 @@ const Login = () => {
 
                 .login-bg-orb-1 {
                     width: 500px; height: 500px;
-                    background: #818CF8;
+                    background: #60A5FA;
                     top: -150px; right: -100px;
                 }
 
@@ -271,14 +271,14 @@ const Login = () => {
 
                 .login-bg-orb-3 {
                     width: 250px; height: 250px;
-                    background: #6366F1;
+                    background: #3B82F6;
                     top: 50%; left: 30%;
                     animation-delay: 3.5s;
                 }
 
-                .dark .login-bg-orb-1 { background: #00FF41; opacity: 0.12; }
-                .dark .login-bg-orb-2 { background: #39FF14; opacity: 0.12; }
-                .dark .login-bg-orb-3 { background: #0D9B3E; opacity: 0.12; }
+                .dark .login-bg-orb-1 { background: #3B82F6; opacity: 0.12; }
+                .dark .login-bg-orb-2 { background: #8B5CF6; opacity: 0.12; }
+                .dark .login-bg-orb-3 { background: #06B6D4; opacity: 0.12; }
 
                 @keyframes loginOrbPulse {
                     0%, 100% { opacity: 0.1; transform: scale(1); }
@@ -295,16 +295,16 @@ const Login = () => {
                 .login-particle {
                     position: absolute;
                     width: 2px; height: 2px;
-                    background: #6366F1;
+                    background: #3B82F6;
                     border-radius: 50%;
                     opacity: 0;
                     animation: loginParticleFloat linear infinite;
-                    box-shadow: 0 0 6px rgba(99, 102, 241, 0.5);
+                    box-shadow: 0 0 6px rgba(59, 130, 246, 0.5);
                 }
 
                 .dark .login-particle {
-                    background: #00FF41;
-                    box-shadow: 0 0 6px #00FF41;
+                    background: #60A5FA;
+                    box-shadow: 0 0 6px rgba(96, 165, 250, 0.6);
                 }
 
                 @keyframes loginParticleFloat {
@@ -322,11 +322,11 @@ const Login = () => {
                     max-width: 420px;
                     background: rgba(255, 255, 255, 0.75);
                     backdrop-filter: blur(40px);
-                    border: 1px solid rgba(99, 102, 241, 0.12);
+                    border: 1px solid rgba(59, 130, 246, 0.12);
                     border-radius: 24px;
                     padding: 40px 36px;
                     box-shadow:
-                        0 0 40px rgba(99, 102, 241, 0.06),
+                        0 0 40px rgba(59, 130, 246, 0.06),
                         0 25px 60px rgba(0, 0, 0, 0.08),
                         inset 0 1px 0 rgba(255, 255, 255, 0.8);
                     animation: loginCardAppear 0.6s ease-out;
@@ -334,12 +334,12 @@ const Login = () => {
                 }
 
                 .dark .login-card {
-                    background: rgba(0, 10, 4, 0.7);
-                    border-color: rgba(0, 255, 65, 0.12);
+                    background: rgba(15, 23, 42, 0.7);
+                    border-color: rgba(59, 130, 246, 0.12);
                     box-shadow:
-                        0 0 40px rgba(0, 255, 65, 0.06),
+                        0 0 40px rgba(59, 130, 246, 0.06),
                         0 25px 60px rgba(0, 0, 0, 0.5),
-                        inset 0 1px 0 rgba(0, 255, 65, 0.08);
+                        inset 0 1px 0 rgba(59, 130, 246, 0.08);
                 }
 
                 .login-card-expanded {
@@ -374,13 +374,13 @@ const Login = () => {
                 .login-logo-glow {
                     position: absolute;
                     width: 80px; height: 80px;
-                    background: radial-gradient(circle, rgba(99, 102, 241, 0.25) 0%, transparent 70%);
+                    background: radial-gradient(circle, rgba(59, 130, 246, 0.25) 0%, transparent 70%);
                     border-radius: 50%;
                     animation: loginLogoGlow 3s ease-in-out infinite;
                 }
 
                 .dark .login-logo-glow {
-                    background: radial-gradient(circle, rgba(0, 255, 65, 0.3) 0%, transparent 70%);
+                    background: radial-gradient(circle, rgba(96, 165, 250, 0.3) 0%, transparent 70%);
                 }
 
                 @keyframes loginLogoGlow {
@@ -392,11 +392,11 @@ const Login = () => {
                     width: 120px;
                     position: relative;
                     z-index: 1;
-                    filter: drop-shadow(0 0 15px rgba(99, 102, 241, 0.2));
+                    filter: hue-rotate(130deg) saturate(1.2) drop-shadow(0 0 15px rgba(59, 130, 246, 0.2));
                 }
 
                 .dark .login-logo-img {
-                    filter: drop-shadow(0 0 15px rgba(0, 255, 65, 0.3));
+                    filter: hue-rotate(130deg) saturate(1.2) drop-shadow(0 0 15px rgba(96, 165, 250, 0.3));
                 }
 
                 /* Title */
@@ -419,13 +419,13 @@ const Login = () => {
 
                 .login-subtitle {
                     font-size: 14px;
-                    color: rgba(99, 102, 241, 0.7);
+                    color: rgba(59, 130, 246, 0.7);
                     margin: 0;
                     letter-spacing: 0.3px;
                 }
 
                 .dark .login-subtitle {
-                    color: rgba(0, 255, 65, 0.5);
+                    color: rgba(96, 165, 250, 0.5);
                 }
 
                 /* Form */
@@ -465,11 +465,11 @@ const Login = () => {
                 }
 
                 .login-label svg {
-                    color: #6366F1;
+                    color: #3B82F6;
                 }
 
                 .dark .login-label svg {
-                    color: rgba(0, 255, 65, 0.5);
+                    color: rgba(96, 165, 250, 0.5);
                 }
 
                 .login-input-wrapper {
@@ -481,8 +481,8 @@ const Login = () => {
                 .login-input {
                     width: 100%;
                     padding: 14px 16px;
-                    background: rgba(99, 102, 241, 0.04);
-                    border: 1px solid rgba(99, 102, 241, 0.15);
+                    background: rgba(59, 130, 246, 0.04);
+                    border: 1px solid rgba(59, 130, 246, 0.15);
                     border-radius: 12px;
                     color: #1e293b;
                     font-size: 14px;
@@ -492,8 +492,8 @@ const Login = () => {
                 }
 
                 .dark .login-input {
-                    background: rgba(0, 255, 65, 0.04);
-                    border-color: rgba(0, 255, 65, 0.12);
+                    background: rgba(59, 130, 246, 0.04);
+                    border-color: rgba(59, 130, 246, 0.12);
                     color: #fff;
                 }
 
@@ -506,15 +506,15 @@ const Login = () => {
                 }
 
                 .login-input:focus {
-                    border-color: rgba(99, 102, 241, 0.5);
-                    background: rgba(99, 102, 241, 0.06);
-                    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1), 0 0 20px rgba(99, 102, 241, 0.08);
+                    border-color: rgba(59, 130, 246, 0.5);
+                    background: rgba(59, 130, 246, 0.06);
+                    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1), 0 0 20px rgba(59, 130, 246, 0.08);
                 }
 
                 .dark .login-input:focus {
-                    border-color: rgba(0, 255, 65, 0.4);
-                    background: rgba(0, 255, 65, 0.06);
-                    box-shadow: 0 0 0 3px rgba(0, 255, 65, 0.08), 0 0 20px rgba(0, 255, 65, 0.1);
+                    border-color: rgba(96, 165, 250, 0.4);
+                    background: rgba(59, 130, 246, 0.06);
+                    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.08), 0 0 20px rgba(96, 165, 250, 0.1);
                 }
 
                 .login-input-password {
@@ -540,11 +540,11 @@ const Login = () => {
                 }
 
                 .login-password-toggle:hover {
-                    color: #6366F1;
+                    color: #3B82F6;
                 }
 
                 .dark .login-password-toggle:hover {
-                    color: #00FF41;
+                    color: #60A5FA;
                 }
 
                 /* Submit button */
@@ -552,7 +552,7 @@ const Login = () => {
                     width: 100%;
                     padding: 14px 24px;
                     margin-top: 4px;
-                    background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #A78BFA 100%);
+                    background: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 50%, #A78BFA 100%);
                     border: none;
                     border-radius: 12px;
                     color: #fff;
@@ -565,15 +565,15 @@ const Login = () => {
                     justify-content: center;
                     gap: 8px;
                     transition: all 0.3s ease;
-                    box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3);
+                    box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
                     position: relative;
                     overflow: hidden;
                 }
 
                 .dark .login-submit-btn {
-                    background: linear-gradient(135deg, #0D9B3E 0%, #00FF41 50%, #39FF14 100%);
-                    color: #000;
-                    box-shadow: 0 0 20px rgba(0, 255, 65, 0.25);
+                    background: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 50%, #A78BFA 100%);
+                    color: #fff;
+                    box-shadow: 0 0 20px rgba(96, 165, 250, 0.25);
                 }
 
                 .login-submit-btn::before {
@@ -590,12 +590,12 @@ const Login = () => {
                 }
 
                 .login-submit-btn:hover {
-                    box-shadow: 0 6px 30px rgba(99, 102, 241, 0.4);
+                    box-shadow: 0 6px 30px rgba(59, 130, 246, 0.4);
                     transform: translateY(-1px);
                 }
 
                 .dark .login-submit-btn:hover {
-                    box-shadow: 0 0 40px rgba(0, 255, 65, 0.4);
+                    box-shadow: 0 0 40px rgba(96, 165, 250, 0.4);
                 }
 
                 .login-submit-btn:active {
@@ -617,8 +617,8 @@ const Login = () => {
                 }
 
                 .dark .login-spinner {
-                    border-color: rgba(0, 0, 0, 0.2);
-                    border-top-color: #000;
+                    border-color: rgba(255, 255, 255, 0.2);
+                    border-top-color: #fff;
                 }
 
                 @keyframes loginSpin {
@@ -636,11 +636,11 @@ const Login = () => {
                 .login-divider-line {
                     flex: 1;
                     height: 1px;
-                    background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.2), transparent);
+                    background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.2), transparent);
                 }
 
                 .dark .login-divider-line {
-                    background: linear-gradient(90deg, transparent, rgba(0, 255, 65, 0.15), transparent);
+                    background: linear-gradient(90deg, transparent, rgba(96, 165, 250, 0.15), transparent);
                 }
 
                 .login-divider-text {
@@ -658,9 +658,9 @@ const Login = () => {
                     width: 100%;
                     padding: 12px;
                     background: transparent;
-                    border: 1px solid rgba(99, 102, 241, 0.2);
+                    border: 1px solid rgba(59, 130, 246, 0.2);
                     border-radius: 12px;
-                    color: #6366F1;
+                    color: #3B82F6;
                     font-size: 14px;
                     font-weight: 500;
                     font-family: 'Outfit', sans-serif;
@@ -669,20 +669,20 @@ const Login = () => {
                 }
 
                 .dark .login-switch-btn {
-                    border-color: rgba(0, 255, 65, 0.15);
-                    color: #00FF41;
+                    border-color: rgba(96, 165, 250, 0.15);
+                    color: #60A5FA;
                 }
 
                 .login-switch-btn:hover {
-                    background: rgba(99, 102, 241, 0.06);
-                    border-color: rgba(99, 102, 241, 0.35);
-                    box-shadow: 0 0 15px rgba(99, 102, 241, 0.1);
+                    background: rgba(59, 130, 246, 0.06);
+                    border-color: rgba(59, 130, 246, 0.35);
+                    box-shadow: 0 0 15px rgba(59, 130, 246, 0.1);
                 }
 
                 .dark .login-switch-btn:hover {
-                    background: rgba(0, 255, 65, 0.06);
-                    border-color: rgba(0, 255, 65, 0.3);
-                    box-shadow: 0 0 15px rgba(0, 255, 65, 0.1);
+                    background: rgba(96, 165, 250, 0.06);
+                    border-color: rgba(96, 165, 250, 0.3);
+                    box-shadow: 0 0 15px rgba(96, 165, 250, 0.1);
                 }
 
                 /* Footer */

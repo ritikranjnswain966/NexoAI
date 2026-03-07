@@ -50,10 +50,10 @@ const Credits = () => {
       
       <div className='flex flex-wrap justify-center gap-8'>
         {plans.map((plan) => (
-          <div key={plan._id} className={`border border-indigo-100 dark:border-[#00FF41]/20 rounded-lg shadow hover:shadow-lg hover:dark:shadow-[0_0_20px_rgba(0,255,65,0.1)] transition-shadow p-6 min-w-[300px] flex flex-col ${plan._id === "pro" ? "bg-indigo-50 dark:bg-[#00FF41]/5" : "bg-white dark:bg-transparent"}`}>
+          <div key={plan._id} className={`border border-blue-100 dark:border-blue-500/20 rounded-lg shadow hover:shadow-lg hover:dark:shadow-[0_0_20px_rgba(59,130,246,0.1)] transition-shadow p-6 min-w-[300px] flex flex-col ${plan._id === "pro" ? "bg-blue-50 dark:bg-blue-500/5" : "bg-white dark:bg-transparent"}`}>
             <div className='flex-1'>
               <h3 className='text-xl font-semibold text-gray-900 dark:text-white mb-2'>{plan.name}</h3>
-              <p className='text-2xl font-bold text-indigo-600 dark:text-white mb-4'>${plan.price}
+              <p className='text-2xl font-bold text-blue-600 dark:text-white mb-4'>${plan.price}
                 <span className='text-base font-normal text-gray-600 dark:text-gray-400'>{' '}/{plan.credits} credits</span>
               </p>
               <ul className='space-y-2 mb-6'>
@@ -62,7 +62,7 @@ const Credits = () => {
                 ))}
               </ul>
             </div>
-            <button onClick={()=> toast.promise(purchasePlan(plan._id), {loading: 'Processing...'})} className='w-full bg-indigo-500 hover:bg-indigo-600 dark:bg-[#00FF41] dark:hover:bg-[#00cc34] text-white dark:text-black font-semibold py-2 rounded-lg transition-colors'>
+            <button onClick={()=> toast.promise(purchasePlan(plan._id), {loading: 'Processing...'})} className='w-full bg-gradient-to-r from-blue-500 to-violet-500 hover:from-blue-600 hover:to-violet-600 text-white font-semibold py-2 rounded-lg transition-all duration-300 shadow-[0_4px_15px_rgba(59,130,246,0.3)] hover:shadow-[0_4px_25px_rgba(59,130,246,0.4)]'>
               Buy Now
             </button>
           </div>
