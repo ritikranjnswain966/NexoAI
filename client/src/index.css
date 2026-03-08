@@ -9,7 +9,7 @@
 }
 
 @theme {
-  --color-primary:#3B82F6;
+  --color-primary: #3b82f6;
 }
 
 .logo-recolor {
@@ -20,7 +20,7 @@
   display: none;
 }
 
-.reset-tw :not(pre):not(code) {
+.reset-tw :not(pre):not(code):not([class*="codeblock"]) {
   all: revert;
 }
 
@@ -29,4 +29,140 @@
 }
 .loader div:nth-child(3) {
   animation-delay: 0.4s;
+}
+
+/* ───── Code Block Styles ───── */
+
+.codeblock-wrapper {
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 12px 0;
+  border: 1px solid rgba(99, 102, 241, 0.15);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  font-family:
+    "Fira Code", "JetBrains Mono", "Cascadia Code", "Consolas", monospace;
+}
+
+.dark .codeblock-wrapper {
+  border-color: rgba(139, 92, 246, 0.2);
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.3);
+}
+
+.codeblock-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px;
+  background: linear-gradient(135deg, #1e1e2e 0%, #2d2b55 100%);
+  border-bottom: 1px solid rgba(139, 92, 246, 0.15);
+}
+
+.codeblock-lang {
+  font-size: 12px;
+  font-weight: 600;
+  color: #a78bfa;
+  text-transform: capitalize;
+  letter-spacing: 0.5px;
+}
+
+.codeblock-copy-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #94a3b8;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: "Outfit", sans-serif;
+}
+
+.codeblock-copy-btn:hover {
+  color: #e2e8f0;
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(139, 92, 246, 0.3);
+  box-shadow: 0 0 8px rgba(139, 92, 246, 0.15);
+}
+
+.codeblock-copy-btn:active {
+  transform: scale(0.95);
+}
+
+.codeblock-copy-icon {
+  width: 14px;
+  height: 14px;
+  filter: brightness(0) invert(0.7);
+  transition: filter 0.2s ease;
+}
+
+.codeblock-copy-btn:hover .codeblock-copy-icon {
+  filter: brightness(0) invert(0.9);
+}
+
+.codeblock-body {
+  background: #1a1a2e;
+  padding: 0;
+}
+
+.codeblock-body pre {
+  margin: 0 !important;
+  padding: 14px 16px !important;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  overflow-x: auto;
+}
+
+.codeblock-body code {
+  font-size: 13px !important;
+  line-height: 1.6 !important;
+  color: #e2e8f0 !important;
+  background: transparent !important;
+  padding: 0 !important;
+  font-family:
+    "Fira Code", "JetBrains Mono", "Cascadia Code", "Consolas", monospace !important;
+  white-space: pre !important;
+  word-break: normal !important;
+  overflow-wrap: normal !important;
+}
+
+/* Inline code */
+.codeblock-inline {
+  background: rgba(139, 92, 246, 0.1) !important;
+  color: #7c3aed !important;
+  padding: 2px 6px !important;
+  border-radius: 4px !important;
+  font-size: 0.875em !important;
+  font-family:
+    "Fira Code", "JetBrains Mono", "Cascadia Code", "Consolas", monospace !important;
+  border: 1px solid rgba(139, 92, 246, 0.15) !important;
+}
+
+.dark .codeblock-inline {
+  background: rgba(139, 92, 246, 0.15) !important;
+  color: #a78bfa !important;
+  border-color: rgba(139, 92, 246, 0.2) !important;
+}
+
+/* Scrollbar for code blocks */
+.codeblock-body pre::-webkit-scrollbar {
+  display: block;
+  height: 6px;
+}
+
+.codeblock-body pre::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.codeblock-body pre::-webkit-scrollbar-thumb {
+  background: rgba(139, 92, 246, 0.25);
+  border-radius: 3px;
+}
+
+.codeblock-body pre::-webkit-scrollbar-thumb:hover {
+  background: rgba(139, 92, 246, 0.4);
 }

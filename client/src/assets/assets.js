@@ -11,7 +11,8 @@ import bin_icon from "./bin_icon.svg";
 import logout_icon from "./logout_icon.svg";
 import diamond_icon from "./diamond_icon.svg";
 import gallery_icon from "./gallery_icon.svg";
-
+import copy_clipboard from "./copy-clipboard.svg";
+import copy_filled from "./copy-filled.svg";
 
 
 export const assets = {
@@ -28,4 +29,6 @@ export const assets = {
   logo_full_dark,
   diamond_icon,
   gallery_icon,
+  copy_clipboard,
+  copy_filled,
 };

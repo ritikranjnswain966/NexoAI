@@ -1,14 +1,10 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { assets } from '../assets/assets'
 import moment from 'moment'
 import Markdown from 'react-markdown'
-import Prism from 'prismjs'
+import CodeBlock from './CodeBlock'
 
 const Message = ({message}) => {
-
-  useEffect(()=>{
-    Prism.highlightAll()
-  },[message.content])
 
   return (
     <div>
@@ -29,7 +25,21 @@ const Message = ({message}) => {
           )
           :
           (
-            <div className='text-sm dark:text-white reset-tw'><Markdown>{message.content}</Markdown></div>
+            <div className='text-sm dark:text-white reset-tw'>
+              <Markdown
+                components={{
+                  code({ className, children, ...props }) {
+                    const isInline = !className && !String(children).includes('\n')
+                    if (isInline) {
+                      return <code className="codeblock-inline" {...props}>{children}</code>
+                    }
+                    return <CodeBlock className={className}>{children}</CodeBlock>
+                  }
+                }}
+              >
+                {message.content}
+              </Markdown>
+            </div>
           )}
           <span className='text-xs text-gray-400 dark:text-gray-500'>{moment(message.timestamp).fromNow()}</span>
         </div>
