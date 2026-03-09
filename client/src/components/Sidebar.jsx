@@ -32,7 +32,7 @@ const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
     }
 
     return (
-        <div className={`flex flex-col h-screen min-w-72 p-5 max-md:bg-white max-md:dark:bg-[#0c1222] bg-gradient-to-b from-white via-slate-50/80 to-blue-50/40 dark:bg-none dark:bg-linear-to-b dark:from-[#0c1222]/90 dark:to-[#030712]/95 border-r border-slate-200/70 dark:border-blue-500/10 backdrop-blur-3xl transition-all duration-500 max-md:absolute left-0 z-50 ${!isMenuOpen && 'max-md:-translate-x-full'}`}>
+        <div className={`flex flex-col h-screen min-w-72 p-5 max-md:bg-white max-md:dark:bg-[#0c1222] bg-linear-to-b from-white via-slate-50/80 to-blue-50/40 dark:bg-none dark:bg-linear-to-b dark:from-[#0c1222]/90 dark:to-[#030712]/95 border-r border-slate-200/70 dark:border-blue-500/10 backdrop-blur-3xl transition-all duration-500 max-md:absolute left-0 z-50 ${!isMenuOpen && 'max-md:-translate-x-full'}`}>
 
             {/*Logo*/}
             <div className='flex items-center gap-2 mb-2'>
@@ -43,7 +43,7 @@ const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
             <button onClick={(e) => {
                 console.log("New Chat Button Clicked in Sidebar!");
                 createNewChat(e);
-            }} className='flex justify-center items-center w-full py-3 mt-6 text-white font-semibold bg-gradient-to-r from-blue-500 via-violet-500 to-purple-500 text-sm rounded-xl cursor-pointer transition-all duration-300 shadow-[0_4px_20px_rgba(59,130,246,0.3)] hover:shadow-[0_4px_30px_rgba(59,130,246,0.5)] hover:scale-[1.02] active:scale-[0.98]'>
+            }} className='flex justify-center items-center w-full py-3 mt-6 text-white font-semibold bg-linear-to-r from-blue-500 via-violet-500 to-purple-500 text-sm rounded-xl cursor-pointer transition-all duration-300 shadow-[0_4px_20px_rgba(59,130,246,0.3)] hover:shadow-[0_4px_30px_rgba(59,130,246,0.5)] hover:scale-[1.02] active:scale-[0.98]'>
                 <span className='mr-2 text-lg font-light'>+</span> New Chat
             </button>
 
@@ -55,7 +55,7 @@ const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
 
             {/*Recent chats */}
             {chats.length > 0 && <p className='mt-5 px-1 text-[11px] font-semibold text-slate-400 dark:text-gray-500 uppercase tracking-widest'>Recent</p>}
-            <div className='flex-1 overflow-y-scroll mt-2 text-sm space-y-1 custom-scrollbar'>
+            <div className='flex-1 min-h-0 overflow-y-auto mt-2 text-sm space-y-1 custom-scrollbar pr-1'>
                 {
                     chats.filter((chat) => chat.messages[0] ? chat.messages[0]?.content.toLowerCase().includes(search.toLowerCase()) : chat.name.toLowerCase().includes(search.toLowerCase())).map((chat) => (
                         <div onClick={()=>{navigate('/'); setSelectedChat(chat); setIsMenuOpen(false)}} key={chat._id} className='p-2.5 px-3 rounded-xl cursor-pointer flex justify-between items-center group transition-all duration-200 hover:bg-white dark:hover:bg-blue-500/5 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white border border-transparent hover:border-slate-200 dark:hover:border-blue-500/5 hover:shadow-sm'>
@@ -106,9 +106,9 @@ const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
             </div>
 
             {/*User Account */}
-            <div className='flex items-center gap-3 p-3 mt-3 rounded-xl cursor-pointer group bg-white dark:bg-blue-500/[0.03] border border-slate-200 dark:border-blue-500/10 hover:border-blue-200 dark:hover:border-blue-500/20 transition-all duration-300 hover:shadow-sm'>
+            <div className='flex items-center gap-3 p-3 mt-3 rounded-xl cursor-pointer group bg-white dark:bg-blue-500/3 border border-slate-200 dark:border-blue-500/10 hover:border-blue-200 dark:hover:border-blue-500/20 transition-all duration-300 hover:shadow-sm'>
                 <div className='relative'>
-                    <div className='absolute inset-[-2px] rounded-full bg-gradient-to-r from-cyan-400 to-violet-400 opacity-70'></div>
+                    <div className='absolute inset-[-2px] rounded-full bg-linear-to-r from-cyan-400 to-violet-400 opacity-70'></div>
                     <img src={assets.user_icon} className='w-9 h-9 rounded-full relative z-10 border-2 border-white dark:border-[#0c1222]' alt="" />
                 </div>
                 <div className='flex-1 min-w-0'>

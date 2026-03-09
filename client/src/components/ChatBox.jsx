@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState, useCallback } from 'react'
 import { useAppContext } from '../context/AppContext'
 import { assets } from '../assets/assets'
 import Message from './Message'
@@ -7,6 +7,7 @@ import toast from 'react-hot-toast'
 const ChatBox = () => {
 
   const containerRef = useRef(null)
+  const bottomRef = useRef(null)
 
   const {selectedChat, theme, user, axios, token, setUser} = useAppContext()
 
@@ -16,6 +17,13 @@ const ChatBox = () => {
   const [prompt, setPrompt] = useState('')
   const [mode, setMode] = useState('text')
   const [isPublished, setIsPublished] = useState(false)
+  const [showScrollBtn, setShowScrollBtn] = useState(false)
+
+  const scrollToBottom = useCallback((behavior = 'smooth') => {
+    if (bottomRef.current) {
+      bottomRef.current.scrollIntoView({ behavior })
+    }
+  }, [])
 
   const onSubmit = async (e) => {
     try {
@@ -48,6 +56,14 @@ const ChatBox = () => {
     }
   }
 
+  // Track scroll position for show/hide scroll-to-bottom button
+  const handleScroll = useCallback(() => {
+    if (!containerRef.current) return
+    const { scrollTop, scrollHeight, clientHeight } = containerRef.current
+    const distanceFromBottom = scrollHeight - scrollTop - clientHeight
+    setShowScrollBtn(distanceFromBottom > 150)
+  }, [])
+
   useEffect(()=>{
     if(selectedChat){
       setMessages(selectedChat.messages)
@@ -55,227 +71,473 @@ const ChatBox = () => {
   },[selectedChat])
 
   useEffect(()=>{
-    if(containerRef.current){
-      containerRef.current.scrollTo({
-        top: containerRef.current.scrollHeight,
-        behavior: "smooth",
-      })
+    // small delay so DOM updates before scroll
+    const t = setTimeout(() => scrollToBottom('smooth'), 80)
+    return () => clearTimeout(t)
+  },[messages, scrollToBottom])
+
+  useEffect(() => {
+    const el = containerRef.current
+    if (el) {
+      el.addEventListener('scroll', handleScroll, { passive: true })
+      return () => el.removeEventListener('scroll', handleScroll)
     }
-  },[messages])
+  }, [handleScroll])
 
   return (
-    <div className='flex-1 flex flex-col justify-between m-5 md:m-10 xl:mx-30 max-md:mt-14 2xl:pr-40 bg-gradient-to-br from-white via-blue-50/40 to-violet-50/30 dark:from-transparent dark:via-transparent dark:to-transparent rounded-2xl p-4'>
+    <div className='chatbox-root'>
 
-      {/*Chat Messages */}
-      <div ref={containerRef} className='flex-1 mb-5 overflow-y-scroll'>
+      {/*Chat Messages Area */}
+      <div ref={containerRef} className='chatbox-messages custom-scrollbar'>
         {messages.length === 0 && (
-          <div className='h-full flex flex-col items-center justify-center gap-2 text-primary'>
+          <div className='chatbox-empty'>
             <img src={theme === 'dark' ? assets.logo_full : assets.logo_full_dark} alt="" className='w-full max-w-56 sm:max-w-68 logo-recolor' />
             <p className='mt-5 text-4xl sm:text-6xl text-center text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 via-blue-500 to-violet-500 dark:from-blue-400 dark:via-violet-400 dark:to-pink-400'>Ask me...</p>
           </div>
         )}
 
-        {messages.map((message, index)=><Message key={index} message={message}/>)}
+        <div className='chatbox-messages-inner'>
+          {messages.map((message, index) => (
+            <Message key={index} message={message} isLatest={index === messages.length - 1} />
+          ))}
 
-        {/* Three Dots Loading */}
-        {
-          loading && <div className='loader flex items-center gap-1.5'>
-            <div className='w-1.5 h-1.5 rounded-full bg-gray-500 dark:bg-white animate-bounce'></div>
-            <div className='w-1.5 h-1.5 rounded-full bg-gray-500 dark:bg-white animate-bounce'></div>
-            <div className='w-1.5 h-1.5 rounded-full bg-gray-500 dark:bg-white animate-bounce'></div>
-          </div>
-        }
-      </div>
-
-      {/*Mode Toggle + Publish */}
-      <div className='flex flex-col items-center gap-3 w-full max-w-2xl mx-auto'>
-        
-        {/*Segmented Toggle*/}
-        <div className='flex items-center gap-3'>
-          <div className='relative flex bg-slate-100 dark:bg-[#0f172a] rounded-full p-1 border border-blue-100 dark:border-blue-500/15'>
-            <div className={`absolute top-1 h-[calc(100%-8px)] w-[calc(50%-4px)] bg-gradient-to-r from-blue-500 to-violet-500 rounded-full transition-all duration-300 shadow-[0_0_12px_rgba(59,130,246,0.3)] ${mode === 'image' ? 'left-[calc(50%+2px)]' : 'left-1'}`}></div>
-            <button type='button' onClick={() => setMode('text')} className={`relative z-10 px-5 py-1.5 text-xs font-semibold rounded-full transition-all duration-300 cursor-pointer ${mode === 'text' ? 'text-white' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'}`}>
-              📝 Text
-            </button>
-            <button type='button' onClick={() => setMode('image')} className={`relative z-10 px-5 py-1.5 text-xs font-semibold rounded-full transition-all duration-300 cursor-pointer ${mode === 'image' ? 'text-white' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'}`}>
-              🖼️ Image
-            </button>
-          </div>
-
-          {mode === 'image' && (
-            <label className='flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 cursor-pointer select-none'>
-              <div className='relative'>
-                <input type="checkbox" className='sr-only peer' checked={isPublished} onChange={(e) => setIsPublished(e.target.checked)} />
-                <div className='w-8 h-4 bg-gray-300 dark:bg-gray-700 rounded-full peer-checked:bg-blue-500 transition-all'></div>
-                <span className='absolute left-0.5 top-0.5 w-3 h-3 bg-white rounded-full transition-transform peer-checked:translate-x-4'></span>
+          {/* AI Thinking Indicator */}
+          {loading && (
+            <div className='chat-msg chat-msg--ai chat-msg--latest'>
+              <div className='chat-msg__avatar-wrap'>
+                <div className='chat-msg__avatar chat-msg__avatar--ai'>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                    <path d="M2 17l10 5 10-5"/>
+                    <path d="M2 12l10 5 10-5"/>
+                  </svg>
+                </div>
               </div>
-              Publish
-            </label>
+              <div className='chat-msg__bubble-wrap'>
+                <div className='chat-msg__bubble chat-msg__bubble--ai chat-thinking'>
+                  <div className='chat-thinking__dots'>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </div>
+                  <span className='chat-thinking__label'>Thinking</span>
+                </div>
+              </div>
+            </div>
           )}
+
+          <div ref={bottomRef} className='h-1' />
         </div>
-
-        {/*Prompt Input Box */}
-        <form onSubmit={onSubmit} className='chatbox-input-form'>
-          <input onChange={(e) => setPrompt(e.target.value)} value={prompt} type="text" placeholder="Type your prompt here..." className='chatbox-input' required />
-          <button disabled={loading} type="submit" className={`chatbox-send-btn ${loading ? 'chatbox-send-btn-loading' : ''}`}>
-            <span className="chatbox-send-btn-glow" />
-            <img src={loading ? assets.stop_icon : assets.send_icon} className='chatbox-send-icon' alt={loading ? "Stop" : "Send"} />
-          </button>
-        </form>
-
-        <style>{`
-          .chatbox-input-form {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            width: 100%;
-            padding: 6px 6px 6px 20px;
-            background: linear-gradient(135deg, #ffffff 0%, #eff6ff 50%, #eef2ff 100%);
-            border: 1.5px solid rgba(59, 130, 246, 0.2);
-            border-radius: 999px;
-            backdrop-filter: blur(12px);
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 12px rgba(59, 130, 246, 0.06);
-          }
-
-          .dark .chatbox-input-form {
-            background: #0f172a;
-            border-color: rgba(59, 130, 246, 0.3);
-            box-shadow: none;
-          }
-
-          .chatbox-input-form:focus-within {
-            border-color: rgba(59, 130, 246, 0.5);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1), 0 4px 20px rgba(59, 130, 246, 0.1);
-          }
-
-          .dark .chatbox-input-form:focus-within {
-            border-color: rgba(96, 165, 250, 0.5);
-            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.08), 0 0 25px rgba(96, 165, 250, 0.12);
-          }
-
-          .chatbox-input {
-            flex: 1;
-            width: 100%;
-            font-size: 14px;
-            outline: none;
-            background: transparent;
-            color: #1e293b;
-            font-family: 'Outfit', sans-serif;
-          }
-
-          .dark .chatbox-input {
-            color: #e0e0e0;
-          }
-
-          .chatbox-input::placeholder {
-            color: rgba(100, 116, 139, 0.6);
-          }
-
-          .dark .chatbox-input::placeholder {
-            color: rgba(255, 255, 255, 0.45);
-          }
-
-          /* Send / Stop Button */
-          .chatbox-send-btn {
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            border: none;
-            background: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 60%, #A78BFA 100%);
-            cursor: pointer;
-            flex-shrink: 0;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 12px rgba(59, 130, 246, 0.3);
-            overflow: hidden;
-          }
-
-          .dark .chatbox-send-btn {
-            background: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 60%, #A78BFA 100%);
-            box-shadow: 0 2px 12px rgba(96, 165, 250, 0.25);
-          }
-
-          .chatbox-send-btn:hover:not(:disabled) {
-            transform: scale(1.08);
-            box-shadow: 0 4px 24px rgba(59, 130, 246, 0.45);
-          }
-
-          .dark .chatbox-send-btn:hover:not(:disabled) {
-            box-shadow: 0 4px 24px rgba(96, 165, 250, 0.45);
-          }
-
-          .chatbox-send-btn:active:not(:disabled) {
-            transform: scale(0.95);
-          }
-
-          .chatbox-send-btn:disabled {
-            cursor: default;
-          }
-
-          /* Shimmer glow */
-          .chatbox-send-btn-glow {
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.3) 50%, transparent 100%);
-            transform: translateX(-100%);
-            transition: transform 0.5s ease;
-            border-radius: 50%;
-          }
-
-          .chatbox-send-btn:hover:not(:disabled) .chatbox-send-btn-glow {
-            transform: translateX(100%);
-          }
-
-          /* Loading state - pulsing red */
-          .chatbox-send-btn-loading {
-            background: linear-gradient(135deg, #c0392b 0%, #e74c3c 60%, #ff6b6b 100%);
-            box-shadow: 0 2px 12px rgba(231, 76, 60, 0.3);
-            animation: sendBtnPulse 1.5s ease-in-out infinite;
-          }
-
-          .chatbox-send-btn-loading:hover {
-            box-shadow: 0 4px 24px rgba(231, 76, 60, 0.5);
-          }
-
-          @keyframes sendBtnPulse {
-            0%, 100% { box-shadow: 0 2px 12px rgba(231, 76, 60, 0.3); }
-            50% { box-shadow: 0 2px 24px rgba(231, 76, 60, 0.6); }
-          }
-
-          /* Icon */
-          .chatbox-send-icon {
-            width: 20px;
-            height: 20px;
-            position: relative;
-            z-index: 1;
-            filter: brightness(0);
-            transition: all 0.2s ease;
-          }
-
-          .chatbox-send-btn-loading .chatbox-send-icon {
-            filter: brightness(0);
-          }
-
-          /* Mobile */
-          @media (max-width: 640px) {
-            .chatbox-send-btn {
-              width: 40px;
-              height: 40px;
-            }
-            .chatbox-send-icon {
-              width: 18px;
-              height: 18px;
-            }
-            .chatbox-input-form {
-              padding: 5px 5px 5px 16px;
-            }
-          }
-        `}</style>
       </div>
+
+      {/* Scroll to bottom FAB */}
+      <button
+        className={`chatbox-scroll-btn ${showScrollBtn ? 'chatbox-scroll-btn--show' : ''}`}
+        onClick={() => scrollToBottom('smooth')}
+        aria-label="Scroll to bottom"
+      >
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </button>
+
+      {/* Modern Floating Chat Input Area */}
+      <div className='chatbox-footer'>
+        <div className='chatbox-footer-inner'>
+          
+          {/* Glass Dock Container */}
+          <div className='w-full flex flex-col gap-3 backdrop-blur-2xl bg-white/60 dark:bg-[#0f172a]/70 p-2 sm:p-3 rounded-t-3xl sm:rounded-3xl border-t sm:border border-white/50 dark:border-blue-500/20 shadow-[0_-8px_32px_rgba(0,0,0,0.04)] sm:shadow-[0_8px_32px_rgba(0,0,0,0.08)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.25)] transition-all duration-500'>
+            
+            {/* Top Bar: Toggle & Publish */}
+            <div className='flex items-center justify-between px-1 sm:px-2'>
+              {/* Modern Segmented Toggle */}
+              <div className='relative flex bg-slate-200/50 dark:bg-slate-800/80 rounded-full p-1 border border-transparent shadow-inner'>
+                <div className={`absolute top-1 h-[calc(100%-8px)] w-[calc(50%-4px)] bg-white dark:bg-slate-600 rounded-full transition-all duration-300 shadow-sm ${mode === 'image' ? 'left-[calc(50%+2px)]' : 'left-1'}`}></div>
+                <button type='button' onClick={() => setMode('text')} className={`relative z-10 px-4 sm:px-5 py-1.5 text-xs font-semibold rounded-full transition-all duration-300 cursor-pointer flex items-center gap-1.5 ${mode === 'text' ? 'text-blue-600 dark:text-blue-300' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}`}>
+                  <span>📝</span> Text
+                </button>
+                <button type='button' onClick={() => setMode('image')} className={`relative z-10 px-4 sm:px-5 py-1.5 text-xs font-semibold rounded-full transition-all duration-300 cursor-pointer flex items-center gap-1.5 ${mode === 'image' ? 'text-purple-600 dark:text-purple-300' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}`}>
+                  <span>🖼️</span> Image
+                </button>
+              </div>
+
+              {/* Publish Toggle */}
+              {mode === 'image' && (
+                <label className='flex items-center gap-2 text-xs font-medium text-slate-500 dark:text-slate-300 cursor-pointer select-none bg-slate-100/50 dark:bg-slate-800/50 backdrop-blur-sm px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-700/50 transition-colors hover:bg-slate-200/50 dark:hover:bg-slate-700/50'>
+                  <div className='relative'>
+                    <input type="checkbox" className='sr-only peer' checked={isPublished} onChange={(e) => setIsPublished(e.target.checked)} />
+                    <div className='w-8 h-4 bg-slate-300 dark:bg-slate-600 rounded-full peer-checked:bg-blue-500 transition-all'></div>
+                    <span className='absolute left-0.5 top-0.5 w-3 h-3 bg-white rounded-full transition-transform peer-checked:translate-x-4 shadow-sm'></span>
+                  </div>
+                  Publish
+                </label>
+              )}
+            </div>
+
+            {/* Input Form with modern styling */}
+            <form onSubmit={onSubmit} className='relative flex items-center w-full bg-white dark:bg-[#1e293b]/80 text-slate-800 dark:text-white rounded-full transition-all duration-300 border border-slate-200 dark:border-slate-700/60 focus-within:ring-4 focus-within:ring-blue-500/10 focus-within:border-blue-400 dark:focus-within:border-blue-500/50 dark:focus-within:ring-blue-500/20 shadow-inner dark:shadow-none'>
+              <input onChange={(e) => setPrompt(e.target.value)} value={prompt} type="text" placeholder={mode === 'image' ? "Describe the image you want to generate..." : "Type your prompt here..."} className='w-full bg-transparent outline-none px-6 py-3.5 sm:py-4 text-[15px] font-outfit placeholder:text-slate-400 dark:placeholder:text-slate-500 min-w-0' required />
+              
+              <div className='pr-2 sm:pr-2.5 flex items-center shrink-0'>
+                <button disabled={loading} type="submit" className={`relative flex items-center justify-center w-10 sm:w-11 h-10 sm:h-11 rounded-full border-none cursor-pointer transition-all duration-300 overflow-hidden group ${loading ? 'animate-pulse bg-red-500 shadow-[0_2px_10px_rgba(239,68,68,0.3)]' : 'bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 shadow-[0_2px_10px_rgba(59,130,246,0.3)]'}`}>
+                  <span className="absolute inset-0 bg-white/20 -translate-x-full group-hover:translate-x-full transition-transform duration-500 ease-in-out" />
+                  <img src={loading ? assets.stop_icon : assets.send_icon} className='w-4 sm:w-5 h-4 sm:h-5 relative z-10 filter brightness-0 invert transition-transform group-hover:scale-110' alt={loading ? "Stop" : "Send"} />
+                </button>
+              </div>
+            </form>
+          </div>
+
+        </div>
+      </div>
+
+      <style>{`
+        /* ─── Chat Root ─── */
+        .chatbox-root {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          position: relative;
+          margin: 0;
+          padding: 0;
+          overflow: hidden;
+          background: linear-gradient(to bottom right, #ffffff, rgba(239,246,255,0.4), rgba(238,242,255,0.3));
+          border-radius: 0;
+          height: 100%;
+          min-height: 0;
+          min-width: 0;
+        }
+        .dark .chatbox-root {
+          background: transparent;
+        }
+        @media (min-width: 768px) {
+          .chatbox-root {
+            margin: 0;
+            border-radius: 0;
+            height: 100%;
+          }
+        }
+        @media (min-width: 1280px) {
+          .chatbox-root {
+            margin: 0;
+            height: 100%;
+          }
+        }
+        @media (min-width: 1536px) {
+          .chatbox-root {
+            padding-right: 0;
+          }
+        }
+
+        /* ─── Messages scroll container ─── */
+        .chatbox-messages {
+          flex: 1;
+          overflow-y: auto;
+          overflow-x: hidden;
+          -webkit-overflow-scrolling: touch;
+          padding: 16px 12px 20px 12px;
+          scroll-behavior: smooth;
+          min-height: 0;
+        }
+        @media (min-width: 640px) {
+          .chatbox-messages { padding: 24px 24px 24px 24px; }
+        }
+        @media (min-width: 768px) {
+          .chatbox-messages { padding: 24px 32px 32px 32px; }
+        }
+
+        .chatbox-messages-inner {
+          max-width: 768px;
+          margin: 0 auto;
+          width: 100%;
+        }
+
+        .chatbox-empty {
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          padding-bottom: 60px;
+        }
+
+        /* ─── Message Rows ─── */
+        .chat-msg {
+          display: flex;
+          align-items: flex-start;
+          gap: 10px;
+          margin-bottom: 6px;
+          animation: msgFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+          max-width: 100%;
+        }
+        .chat-msg--user {
+          flex-direction: row-reverse;
+          margin-left: auto;
+        }
+        .chat-msg--ai {
+          flex-direction: row;
+          margin-right: auto;
+        }
+
+        @keyframes msgFadeIn {
+          from { opacity: 0; transform: translateY(12px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Avatar */
+        .chat-msg__avatar-wrap {
+          flex-shrink: 0;
+          margin-top: 4px;
+        }
+        .chat-msg__avatar {
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          object-fit: cover;
+          box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+        }
+        .chat-msg__avatar--ai {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: linear-gradient(135deg, #6366f1, #8b5cf6);
+          color: white;
+          box-shadow: 0 2px 8px rgba(99,102,241,0.25);
+        }
+        @media (min-width: 640px) {
+          .chat-msg__avatar { width: 36px; height: 36px; }
+        }
+
+        /* Bubble wrap */
+        .chat-msg__bubble-wrap {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+          max-width: 85%;
+          min-width: 0;
+          overflow: hidden;
+        }
+        .chat-msg--user .chat-msg__bubble-wrap {
+          align-items: flex-end;
+        }
+        .chat-msg--ai .chat-msg__bubble-wrap {
+          align-items: flex-start;
+        }
+        @media (min-width: 640px) {
+          .chat-msg__bubble-wrap { max-width: 80%; }
+        }
+        @media (min-width: 1024px) {
+          .chat-msg__bubble-wrap { max-width: 75%; }
+        }
+
+        /* Bubble */
+        .chat-msg__bubble {
+          padding: 12px 16px;
+          border-radius: 20px;
+          line-height: 1.55;
+          word-wrap: break-word;
+          overflow-wrap: break-word;
+          word-break: break-word;
+          overflow: hidden;
+          max-width: 100%;
+        }
+        .chat-msg__bubble--user {
+          background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
+          color: #fff;
+          border-bottom-right-radius: 6px;
+          box-shadow: 0 2px 12px rgba(59,130,246,0.18);
+        }
+        .dark .chat-msg__bubble--user {
+          background: linear-gradient(135deg, #3b82f6 0%, #7c3aed 100%);
+          box-shadow: 0 2px 16px rgba(59,130,246,0.2);
+        }
+        .chat-msg__bubble--ai {
+          background: rgba(241,245,249,0.8);
+          color: #1e293b;
+          border-bottom-left-radius: 6px;
+          box-shadow: 0 1px 6px rgba(0,0,0,0.04);
+          border: 1px solid rgba(226,232,240,0.6);
+        }
+        .dark .chat-msg__bubble--ai {
+          background: rgba(30,41,59,0.6);
+          color: #e2e8f0;
+          border-color: rgba(99,102,241,0.12);
+          box-shadow: 0 1px 8px rgba(0,0,0,0.15);
+        }
+
+        /* Text */
+        .chat-msg__text {
+          font-size: 14px;
+          line-height: 1.6;
+        }
+        @media (min-width: 640px) {
+          .chat-msg__text { font-size: 14.5px; }
+        }
+        .chat-msg__bubble--user .chat-msg__text {
+          color: #fff;
+        }
+
+        /* AI Image */
+        .chat-msg__image {
+          max-width: 100%;
+          border-radius: 12px;
+          margin-top: 4px;
+        }
+        @media (min-width: 640px) {
+          .chat-msg__image { max-width: 420px; }
+        }
+
+        /* Timestamp */
+        .chat-msg__time {
+          font-size: 10px;
+          color: #94a3b8;
+          padding: 0 4px;
+          line-height: 1;
+        }
+        .dark .chat-msg__time {
+          color: #64748b;
+        }
+
+        /* Markdown inside AI bubble */
+        .chat-msg__markdown {
+          overflow-x: auto;
+          width: 100%;
+          min-width: 0;
+        }
+        /* Ensure code blocks inside bubbles are responsive */
+        .chat-msg__bubble .codeblock-wrapper {
+          max-width: 100%;
+          overflow: hidden;
+        }
+        .chat-msg__bubble .codeblock-wrapper pre {
+          max-width: 100%;
+          overflow-x: auto;
+        }
+
+        /* ─── Thinking Indicator ─── */
+        .chat-thinking {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          padding: 14px 20px !important;
+        }
+        .chat-thinking__dots {
+          display: flex;
+          align-items: center;
+          gap: 5px;
+        }
+        .chat-thinking__dots span {
+          display: block;
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          background: linear-gradient(135deg, #6366f1, #8b5cf6);
+          animation: thinkBounce 1.4s ease-in-out infinite;
+        }
+        .dark .chat-thinking__dots span {
+          background: linear-gradient(135deg, #818cf8, #a78bfa);
+        }
+        .chat-thinking__dots span:nth-child(2) { animation-delay: 0.15s; }
+        .chat-thinking__dots span:nth-child(3) { animation-delay: 0.3s; }
+        @keyframes thinkBounce {
+          0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+          30% { transform: translateY(-8px); opacity: 1; }
+        }
+        .chat-thinking__label {
+          font-size: 12px;
+          font-weight: 500;
+          color: #94a3b8;
+          animation: thinkPulse 2s ease-in-out infinite;
+        }
+        .dark .chat-thinking__label { color: #64748b; }
+        @keyframes thinkPulse {
+          0%, 100% { opacity: 0.5; }
+          50% { opacity: 1; }
+        }
+
+        /* ─── Scroll to Bottom Button ─── */
+        .chatbox-scroll-btn {
+          position: absolute;
+          bottom: 100px;
+          left: 50%;
+          transform: translateX(-50%) scale(0.8);
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          border: 1px solid rgba(226,232,240,0.7);
+          background: rgba(255,255,255,0.95);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #64748b;
+          cursor: pointer;
+          box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+          opacity: 0;
+          pointer-events: none;
+          transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+          z-index: 20;
+        }
+        .dark .chatbox-scroll-btn {
+          background: #1e293b;
+          border-color: rgba(99,102,241,0.15);
+          color: #94a3b8;
+          box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+        }
+        .chatbox-scroll-btn--show {
+          opacity: 1;
+          pointer-events: auto;
+          transform: translateX(-50%) scale(1);
+        }
+        .chatbox-scroll-btn:hover {
+          box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+          color: #3b82f6;
+        }
+        .chatbox-scroll-btn:active { transform: translateX(-50%) scale(0.92); }
+
+        /* ─── Floating Footer ─── */
+        .chatbox-footer {
+          width: 100%;
+          max-width: 100%;
+          box-sizing: border-box;
+          padding: 0 12px 12px 12px;
+          padding-bottom: max(12px, env(safe-area-inset-bottom));
+          background: transparent;
+          z-index: 10;
+          flex-shrink: 0;
+        }
+        .dark .chatbox-footer {
+          background: transparent;
+        }
+        @media (min-width: 640px) {
+          .chatbox-footer { padding: 16px 24px; padding-bottom: max(16px, env(safe-area-inset-bottom)); }
+        }
+        @media (min-width: 768px) {
+          .chatbox-footer { padding: 16px 32px; padding-bottom: max(16px, env(safe-area-inset-bottom)); }
+        }
+        @media (min-width: 1024px) {
+          .chatbox-footer { padding: 20px 48px; padding-bottom: max(20px, env(safe-area-inset-bottom)); }
+        }
+
+        .chatbox-footer-inner {
+          max-width: 768px;
+          margin: 0 auto;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 10px;
+          width: 100%;
+        }
+
+
+
+        /* ─── Mobile-first top spacing for hamburger menu ─── */
+        @media (max-width: 767px) {
+          .chatbox-root {
+            margin-top: 48px;
+            height: calc(100% - 48px);
+          }
+        }
+      `}</style>
     </div>
   )
 }
