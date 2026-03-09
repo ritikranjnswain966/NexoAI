@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { assets } from "../assets/assets";
 
 const CodeBlock = ({ className, children }) => {
@@ -6,7 +8,7 @@ const CodeBlock = ({ className, children }) => {
 
   // Extract language from className (e.g. "language-javascript" → "javascript")
   const match = /language-(\w+)/.exec(className || "");
-  const language = match ? match[1] : "code";
+  const language = match ? match[1] : "text";
 
   // Display-friendly language name
   const languageLabel = language.charAt(0).toUpperCase() + language.slice(1);
@@ -19,7 +21,6 @@ const CodeBlock = ({ className, children }) => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      // Fallback for older browsers
       const textarea = document.createElement("textarea");
       textarea.value = codeString;
       document.body.appendChild(textarea);
@@ -55,14 +56,33 @@ const CodeBlock = ({ className, children }) => {
         </button>
       </div>
 
-      {/* Code content */}
-      <div className="codeblock-body">
-        <pre>
-          <code className={className}>{codeString}</code>
-        </pre>
-      </div>
+      {/* Syntax-highlighted code */}
+      <SyntaxHighlighter
+        language={language}
+        style={oneDark}
+        showLineNumbers={false}
+        wrapLongLines={false}
+        customStyle={{
+          margin: 0,
+          padding: "14px 16px",
+          borderRadius: "0 0 10px 10px",
+          fontSize: "13px",
+          lineHeight: "1.6",
+          background: "#1a1a2e",
+          overflowX: "auto",
+          maxWidth: "100%",
+        }}
+        codeTagProps={{
+          style: {
+            fontFamily: "'Fira Code', 'JetBrains Mono', 'Cascadia Code', 'Consolas', monospace",
+          },
+        }}
+      >
+        {codeString}
+      </SyntaxHighlighter>
     </div>
   );
 };
 
 export default CodeBlock;
+

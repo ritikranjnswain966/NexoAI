@@ -31,6 +31,10 @@ export const textMessageController = async (req, res) => {
       model: "gemini-3-flash-preview",
       messages: [
         {
+          role: "system",
+          content: `You are a highly capable AI assistant. The current date and local time is ${new Date().toLocaleString()}. Always use this real-time information when the user asks about the date or time.`,
+        },
+        {
           role: "user",
           content: prompt,
         },

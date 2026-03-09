@@ -8,6 +8,11 @@
   font-family: "Outfit", sans-serif;
 }
 
+body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
 @theme {
   --color-primary: #3b82f6;
 }
@@ -41,6 +46,8 @@
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
   font-family:
     "Fira Code", "JetBrains Mono", "Cascadia Code", "Consolas", monospace;
+  max-width: 100%;
+  width: 100%;
 }
 
 .dark .codeblock-wrapper {
@@ -165,4 +172,33 @@
 
 .codeblock-body pre::-webkit-scrollbar-thumb:hover {
   background: rgba(139, 92, 246, 0.4);
+}
+
+/* Mobile optimizations for code blocks */
+@media (max-width: 768px) {
+  .codeblock-wrapper {
+    border-radius: 8px;
+    margin: 8px 0;
+  }
+
+  .codeblock-header {
+    padding: 6px 10px;
+  }
+
+  .codeblock-lang {
+    font-size: 11px;
+  }
+
+  .codeblock-copy-btn {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+
+  /* The react-syntax-highlighter custom style overrides some CSS, 
+     but we can still enforce constraints here */
+  .codeblock-wrapper pre {
+    padding: 10px 12px !important;
+    font-size: 11px !important;
+    line-height: 1.5 !important;
+  }
 }
