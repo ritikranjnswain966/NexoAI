@@ -12,7 +12,7 @@ import Login from "./pages/Login";
 import { Toaster } from "react-hot-toast";
 
 const App = () => {
-  const { user, loadingUser } = useAppContext();
+  const { user, loadingUser, theme, createNewChat } = useAppContext();
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { pathname } = useLocation();
@@ -22,12 +22,33 @@ const App = () => {
   return (
     <>
       <Toaster />
+      {/* Mobile Header Bar — only visible below md breakpoint */}
       {!isMenuOpen && (
-        <img
-          src={assets.menu_icon}
-          className="absolute top-3 left-3 w-8 h-8 cursor-pointer md:hidden not-dark:invert"
-          onClick={() => setIsMenuOpen(true)}
-        />
+        <div className="mobile-header md:hidden">
+          <button
+            className="mobile-header__btn"
+            onClick={() => setIsMenuOpen(true)}
+            aria-label="Open menu"
+          >
+            <img
+              src={assets.menu_icon}
+              className="w-6 h-6 not-dark:invert"
+              alt="Menu"
+            />
+          </button>
+          <img
+            src={theme === "dark" ? assets.logo_full : assets.logo_full_dark}
+            alt="Nexo"
+            className="mobile-header__logo logo-recolor"
+          />
+          <button
+            className="mobile-header__new-chat"
+            onClick={createNewChat}
+            aria-label="New chat"
+          >
+            <span className="mobile-header__plus">+</span>
+          </button>
+        </div>
       )}
 
       {user ? (

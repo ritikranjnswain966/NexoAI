@@ -14,6 +14,86 @@ body {
   max-height: 100vh;
 }
 
+/* ─── Mobile Header Bar (visible below md breakpoint) ─── */
+.mobile-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 48px;
+  padding: 0 12px;
+  padding-top: env(safe-area-inset-top, 0px);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.6);
+  box-sizing: border-box;
+}
+@media (min-width: 768px) {
+  .mobile-header {
+    display: none !important;
+  }
+}
+.dark .mobile-header {
+  background: rgba(12, 18, 34, 0.9);
+  border-bottom-color: rgba(99, 102, 241, 0.1);
+}
+
+.mobile-header__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 10px;
+  transition: background 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.mobile-header__btn:active {
+  background: rgba(0, 0, 0, 0.06);
+}
+.dark .mobile-header__btn:active {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.mobile-header__logo {
+  height: 26px;
+  width: auto;
+  object-fit: contain;
+}
+
+.mobile-header__new-chat {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  background: linear-gradient(135deg, #3b82f6, #7c3aed);
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+  transition: all 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.mobile-header__new-chat:active {
+  transform: scale(0.93);
+}
+
+.mobile-header__plus {
+  color: #fff;
+  font-size: 20px;
+  font-weight: 300;
+  line-height: 1;
+}
+
 @theme {
   --color-primary: #3b82f6;
 }
