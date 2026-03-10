@@ -36,6 +36,7 @@ const App = () => {
             <Sidebar isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} />
             <Routes>
               <Route path="/" element={<ChatBox />} />
+              <Route path="/chat/:chatId" element={<ChatBox />} />
               <Route path="/credits" element={<Credits />} />
               <Route path="/community" element={<Community />} />
             </Routes>

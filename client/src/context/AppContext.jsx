@@ -14,6 +14,7 @@ export const AppContextProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [chats, setChats] = useState([]);
     const [selectedChat, setSelectedChat] = useState(null);
+    const [isNewChat, setIsNewChat] = useState(true);
     const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light')
     const [token, setToken] = useState(localStorage.getItem('token') || null)
     const [loadingUser, setLoadingUser] = useState(true)
@@ -34,42 +35,18 @@ export const AppContextProvider = ({ children }) => {
         }
     }
 
-    const createNewChat = async () =>{
-        try {
-            if(!user) return toast.error('Login to create a new chat')
-            const { data } = await axios.get('/api/chat/create',{headers: {Authorization: token}})
-            if (data?.success) {
-                navigate('/')
-                await fetchUsersChats()
-            } else {
-                toast.error(data?.message || 'Error creating chat')
-                console.error('Chat creation failed:', data)
-            }
-        } catch (error) {
-            toast.error(error.message)
-            console.error('Chat creation error:', error)
-        }
+    const createNewChat = () =>{
+        setSelectedChat(null)
+        setIsNewChat(true)
+        sessionStorage.removeItem('activeChatId')
+        navigate('/')
     }
 
     const fetchUsersChats = async () => {
         try {
             const {data} = await axios.get('/api/chat/get',{headers: {Authorization: token}})
             if(data.success){
-                if(data.chats.length === 0){
-                    const createData = await axios.get('/api/chat/create',{headers: {Authorization: token}})
-                    if (createData?.data?.success) {
-                        const {data: newData} = await axios.get('/api/chat/get',{headers: {Authorization: token}})
-                        if (newData.success) {
-                            setChats(newData.chats)
-                            setSelectedChat(newData.chats[0])
-                        }
-                    } else {
-                        console.error('Initial chat creation failed:', createData)
-                    }
-                }else{
-                    setChats(data.chats)
-                    setSelectedChat(data.chats[0])
-                }
+                setChats(data.chats)
             }else{
                 toast.error(data.message)
             }
@@ -90,6 +67,11 @@ export const AppContextProvider = ({ children }) => {
     useEffect(() => {
         if (user) {
             fetchUsersChats()
+            // Restore active chat from session storage on load
+            const activeChatId = sessionStorage.getItem('activeChatId')
+            if (activeChatId) {
+                navigate(`/chat/${activeChatId}`, { replace: true })
+            }
         }
         else {
             setChats([])
@@ -108,7 +90,7 @@ export const AppContextProvider = ({ children }) => {
 
 
     const value = { 
-        navigate, user, setUser, fetchUser, chats, setChats, selectedChat, setSelectedChat, theme, setTheme, createNewChat, loadingUser,fetchUsersChats, token, setToken, axios
+        navigate, user, setUser, fetchUser, chats, setChats, selectedChat, setSelectedChat, theme, setTheme, createNewChat, loadingUser, fetchUsersChats, token, setToken, axios, isNewChat, setIsNewChat
     }
     return (
         <AppContext.Provider value={value}>

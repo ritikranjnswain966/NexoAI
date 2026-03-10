@@ -11,7 +11,9 @@ const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
 
     const logout = () => {
         localStorage.removeItem('token')
+        sessionStorage.removeItem('activeChatId')
         setToken(null)
+        navigate('/')
         toast.success('Logged out successfully')
     }
 
@@ -58,7 +60,7 @@ const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
             <div className='flex-1 min-h-0 overflow-y-auto mt-2 text-sm space-y-1 custom-scrollbar pr-1'>
                 {
                     chats.filter((chat) => chat.messages[0] ? chat.messages[0]?.content.toLowerCase().includes(search.toLowerCase()) : chat.name.toLowerCase().includes(search.toLowerCase())).map((chat) => (
-                        <div onClick={()=>{navigate('/'); setSelectedChat(chat); setIsMenuOpen(false)}} key={chat._id} className='p-2.5 px-3 rounded-xl cursor-pointer flex justify-between items-center group transition-all duration-200 hover:bg-white dark:hover:bg-blue-500/5 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white border border-transparent hover:border-slate-200 dark:hover:border-blue-500/5 hover:shadow-sm'>
+                        <div onClick={()=>{sessionStorage.setItem('activeChatId', chat._id); navigate(`/chat/${chat._id}`); setSelectedChat(chat); setIsMenuOpen(false)}} key={chat._id} className='p-2.5 px-3 rounded-xl cursor-pointer flex justify-between items-center group transition-all duration-200 hover:bg-white dark:hover:bg-blue-500/5 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white border border-transparent hover:border-slate-200 dark:hover:border-blue-500/5 hover:shadow-sm'>
                             <div className='flex-1 min-w-0'>
                                 <p className='truncate w-full font-medium text-[13px]'>
                                     {chat.messages.length > 0 ? chat.messages[0].content.slice(0, 32) : chat.name}

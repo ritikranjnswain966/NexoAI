@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react'
+import { useParams } from 'react-router-dom'
 import { useAppContext } from '../context/AppContext'
 import { assets } from '../assets/assets'
 import Message from './Message'
@@ -9,7 +10,8 @@ const ChatBox = () => {
   const containerRef = useRef(null)
   const bottomRef = useRef(null)
 
-  const {selectedChat, theme, user, axios, token, setUser} = useAppContext()
+  const {selectedChat, setSelectedChat, theme, user, axios, token, setUser, isNewChat, setIsNewChat, fetchUsersChats, navigate} = useAppContext()
+  const { chatId: urlChatId } = useParams()
 
   const [messages, setMessages] = useState([])
   const [loading, setLoading] = useState(false)
@@ -29,16 +31,53 @@ const ChatBox = () => {
     try {
       e.preventDefault()
       if(!user) return toast('Login to send message')
-        setLoading(true)
+      setLoading(true)
       const promptCopy = prompt
       setPrompt('')
-      setMessages(prev => [...prev, {role: 'user', content: prompt, timestamp: Date.now(), isImage: false }])
 
-      const {data} = await axios.post(`/api/message/${mode}`, {chatId: selectedChat._id, prompt, isPublished}, {headers: {Authorization: token}})
+      // --- New chat flow: create chat with first message ---
+      if (isNewChat || !selectedChat) {
+        setMessages([{role: 'user', content: promptCopy, timestamp: Date.now(), isImage: false }])
+
+        // 1. Create the chat on the server with the first message
+        const {data: chatData} = await axios.post('/api/chat/create-with-message', {prompt: promptCopy}, {headers: {Authorization: token}})
+        if (!chatData.success) {
+          toast.error(chatData.message || 'Error creating chat')
+          setPrompt(promptCopy)
+          setLoading(false)
+          return
+        }
+
+        const newChat = chatData.chat
+        setSelectedChat(newChat)
+        setIsNewChat(false)
+        fetchUsersChats()
+        sessionStorage.setItem('activeChatId', newChat._id)
+        navigate(`/chat/${newChat._id}`, { replace: true })
+
+        // 2. Now send the AI message using the new chatId
+        const {data} = await axios.post(`/api/message/${mode}`, {chatId: newChat._id, prompt: promptCopy, isPublished}, {headers: {Authorization: token}})
+        if(data.success){
+          setMessages(prev => [...prev, data.reply])
+          if (mode === 'image') {
+            setUser(prev => ({...prev, credits: prev.credits - 2}))
+          } else {
+            setUser(prev => ({...prev, credits: prev.credits - 1}))
+          }
+        } else {
+          toast.error(data.message)
+        }
+        setLoading(false)
+        return
+      }
+
+      // --- Existing chat flow ---
+      setMessages(prev => [...prev, {role: 'user', content: promptCopy, timestamp: Date.now(), isImage: false }])
+
+      const {data} = await axios.post(`/api/message/${mode}`, {chatId: selectedChat._id, prompt: promptCopy, isPublished}, {headers: {Authorization: token}})
 
       if(data.success){
         setMessages(prev => [...prev, data.reply])
-        //decrease credits
         if (mode === 'image') {
           setUser(prev => ({...prev, credits: prev.credits - 2}))
         }else{
@@ -67,8 +106,37 @@ const ChatBox = () => {
   useEffect(()=>{
     if(selectedChat){
       setMessages(selectedChat.messages)
+      setIsNewChat(false)
     }
   },[selectedChat])
+
+  // Fetch chat from URL on mount/refresh
+  useEffect(() => {
+    if (urlChatId && token) {
+      const fetchChat = async () => {
+        try {
+          const { data } = await axios.get(`/api/chat/${urlChatId}`, { headers: { Authorization: token } })
+          if (data.success) {
+            setSelectedChat(data.chat)
+            setIsNewChat(false)
+            sessionStorage.setItem('activeChatId', urlChatId)
+          } else {
+            toast.error(data.message || 'Chat not found')
+            navigate('/', { replace: true })
+          }
+        } catch (error) {
+          toast.error('Error loading chat')
+          navigate('/', { replace: true })
+        }
+      }
+      fetchChat()
+    } else if (!urlChatId) {
+      // On root "/", show welcome screen
+      setSelectedChat(null)
+      setMessages([])
+      setIsNewChat(true)
+    }
+  }, [urlChatId, token])
 
   useEffect(()=>{
     // small delay so DOM updates before scroll
@@ -89,7 +157,20 @@ const ChatBox = () => {
 
       {/*Chat Messages Area */}
       <div ref={containerRef} className='chatbox-messages custom-scrollbar'>
-        {messages.length === 0 && (
+        {(isNewChat || (!selectedChat && messages.length === 0)) ? (
+          <div className='chatbox-welcome'>
+            <div className='chatbox-welcome__logo'>
+              <img src={theme === 'dark' ? assets.logo_full : assets.logo_full_dark} alt="Nexo" className='w-full max-w-56 sm:max-w-68 logo-recolor' />
+            </div>
+            <p className='chatbox-welcome__tagline'>How can I help you today?</p>
+            <div className='chatbox-welcome__chips'>
+              <button type='button' onClick={() => { setPrompt('Explain a concept simply'); }} className='chatbox-welcome__chip'>💡 Explain a concept</button>
+              <button type='button' onClick={() => { setPrompt('Write code for me'); }} className='chatbox-welcome__chip'>💻 Write code</button>
+              <button type='button' onClick={() => { setPrompt('Generate an image of'); }} className='chatbox-welcome__chip'>🎨 Generate an image</button>
+              <button type='button' onClick={() => { setPrompt('Help me brainstorm ideas'); }} className='chatbox-welcome__chip'>🧠 Brainstorm ideas</button>
+            </div>
+          </div>
+        ) : messages.length === 0 && (
           <div className='chatbox-empty'>
             <img src={theme === 'dark' ? assets.logo_full : assets.logo_full_dark} alt="" className='w-full max-w-56 sm:max-w-68 logo-recolor' />
             <p className='mt-5 text-4xl sm:text-6xl text-center text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 via-blue-500 to-violet-500 dark:from-blue-400 dark:via-violet-400 dark:to-pink-400'>Ask me...</p>
@@ -259,6 +340,87 @@ const ChatBox = () => {
           justify-content: center;
           gap: 8px;
           padding-bottom: 60px;
+        }
+
+        /* ─── Welcome Landing Screen ─── */
+        .chatbox-welcome {
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 16px;
+          padding-bottom: 40px;
+          animation: welcomeFadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+        @keyframes welcomeFadeIn {
+          from { opacity: 0; transform: translateY(20px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        .chatbox-welcome__logo {
+          animation: welcomeFloat 4s ease-in-out infinite;
+        }
+        @keyframes welcomeFloat {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-8px); }
+        }
+        .chatbox-welcome__tagline {
+          margin-top: 12px;
+          font-size: 1.75rem;
+          font-weight: 600;
+          text-align: center;
+          background: linear-gradient(135deg, #06b6d4, #3b82f6, #8b5cf6);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+        }
+        @media (min-width: 640px) {
+          .chatbox-welcome__tagline { font-size: 2.5rem; }
+        }
+        .dark .chatbox-welcome__tagline {
+          background: linear-gradient(135deg, #67e8f9, #818cf8, #c084fc);
+          -webkit-background-clip: text;
+          background-clip: text;
+        }
+        .chatbox-welcome__chips {
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: center;
+          gap: 10px;
+          margin-top: 20px;
+          max-width: 540px;
+          padding: 0 16px;
+        }
+        .chatbox-welcome__chip {
+          padding: 10px 18px;
+          border-radius: 16px;
+          font-size: 13px;
+          font-weight: 500;
+          cursor: pointer;
+          border: 1px solid rgba(226,232,240,0.8);
+          background: rgba(255,255,255,0.7);
+          color: #475569;
+          backdrop-filter: blur(8px);
+          transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+          white-space: nowrap;
+        }
+        .chatbox-welcome__chip:hover {
+          background: rgba(255,255,255,0.95);
+          border-color: #93c5fd;
+          color: #1e40af;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 16px rgba(59,130,246,0.12);
+        }
+        .dark .chatbox-welcome__chip {
+          background: rgba(30,41,59,0.6);
+          border-color: rgba(99,102,241,0.2);
+          color: #94a3b8;
+        }
+        .dark .chatbox-welcome__chip:hover {
+          background: rgba(30,41,59,0.9);
+          border-color: rgba(99,102,241,0.5);
+          color: #e2e8f0;
+          box-shadow: 0 4px 16px rgba(99,102,241,0.15);
         }
 
         /* ─── Message Rows ─── */
