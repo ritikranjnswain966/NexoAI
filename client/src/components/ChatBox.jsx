@@ -9,6 +9,7 @@ const ChatBox = () => {
 
   const containerRef = useRef(null)
   const bottomRef = useRef(null)
+  const textareaRef = useRef(null)
 
   const {selectedChat, setSelectedChat, theme, user, axios, token, setUser, isNewChat, setIsNewChat, fetchUsersChats, navigate} = useAppContext()
   const { chatId: urlChatId } = useParams()
@@ -34,6 +35,10 @@ const ChatBox = () => {
       setLoading(true)
       const promptCopy = prompt
       setPrompt('')
+      // Reset textarea height after sending
+      if (textareaRef.current) {
+        textareaRef.current.style.height = 'auto'
+      }
 
       // --- New chat flow: create chat with first message ---
       if (isNewChat || !selectedChat) {
@@ -152,6 +157,30 @@ const ChatBox = () => {
     }
   }, [handleScroll])
 
+  // Auto-resize textarea based on content
+  const autoResize = useCallback(() => {
+    const el = textareaRef.current
+    if (el) {
+      el.style.height = 'auto'
+      el.style.height = Math.min(el.scrollHeight, 200) + 'px'
+    }
+  }, [])
+
+  useEffect(() => {
+    autoResize()
+  }, [prompt, autoResize])
+
+  // Handle keydown: desktop Enter sends, Shift+Enter = newline; mobile Enter = newline always
+  const handleKeyDown = useCallback((e) => {
+    const isMobile = window.innerWidth < 768
+    if (!isMobile && e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      if (prompt.trim()) {
+        onSubmit(e)
+      }
+    }
+  }, [prompt, onSubmit])
+
   return (
     <div className='chatbox-root'>
 
@@ -256,8 +285,8 @@ const ChatBox = () => {
             </div>
 
             {/* Input Form with modern styling */}
-            <form onSubmit={onSubmit} className='relative flex items-center w-full bg-white dark:bg-[#1e293b]/80 text-slate-800 dark:text-white rounded-full transition-all duration-300 border border-slate-200 dark:border-slate-700/60 focus-within:ring-4 focus-within:ring-blue-500/10 focus-within:border-blue-400 dark:focus-within:border-blue-500/50 dark:focus-within:ring-blue-500/20 shadow-inner dark:shadow-none'>
-              <input onChange={(e) => setPrompt(e.target.value)} value={prompt} type="text" placeholder={mode === 'image' ? "Describe the image you want to generate..." : "Type your prompt here..."} className='w-full bg-transparent outline-none px-6 py-3.5 sm:py-4 text-[15px] font-outfit placeholder:text-slate-400 dark:placeholder:text-slate-500 min-w-0' required />
+            <form onSubmit={onSubmit} className='relative flex items-end w-full bg-white dark:bg-[#1e293b]/80 text-slate-800 dark:text-white rounded-2xl transition-all duration-300 border border-slate-200 dark:border-slate-700/60 focus-within:ring-4 focus-within:ring-blue-500/10 focus-within:border-blue-400 dark:focus-within:border-blue-500/50 dark:focus-within:ring-blue-500/20 shadow-inner dark:shadow-none'>
+              <textarea ref={textareaRef} onChange={(e) => setPrompt(e.target.value)} onKeyDown={handleKeyDown} value={prompt} rows={1} placeholder={mode === 'image' ? "Describe the image you want to generate..." : "Type your prompt here..."} className='w-full bg-transparent outline-none px-6 py-3.5 sm:py-4 text-[15px] font-outfit placeholder:text-slate-400 dark:placeholder:text-slate-500 min-w-0 resize-none overflow-y-auto' style={{maxHeight: '200px'}} required />
               
               <div className='pr-2 sm:pr-2.5 flex items-center shrink-0'>
                 <button disabled={loading} type="submit" className={`relative flex items-center justify-center w-10 sm:w-11 h-10 sm:h-11 rounded-full border-none cursor-pointer transition-all duration-300 overflow-hidden group ${loading ? 'animate-pulse bg-red-500 shadow-[0_2px_10px_rgba(239,68,68,0.3)]' : 'bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 shadow-[0_2px_10px_rgba(59,130,246,0.3)]'}`}>
