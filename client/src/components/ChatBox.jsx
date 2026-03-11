@@ -457,17 +457,17 @@ const ChatBox = () => {
           display: flex;
           align-items: flex-start;
           gap: 10px;
-          margin-bottom: 6px;
+          margin-bottom: 16px;
           animation: msgFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
-          max-width: 100%;
+          width: 100%;
         }
         .chat-msg--user {
           flex-direction: row-reverse;
-          margin-left: auto;
+          justify-content: flex-start;
         }
         .chat-msg--ai {
           flex-direction: row;
-          margin-right: auto;
+          justify-content: flex-start;
         }
 
         @keyframes msgFadeIn {
@@ -504,7 +504,7 @@ const ChatBox = () => {
           display: flex;
           flex-direction: column;
           gap: 4px;
-          max-width: 85%;
+          max-width: 80%;
           min-width: 0;
           overflow: hidden;
         }
@@ -515,10 +515,10 @@ const ChatBox = () => {
           align-items: flex-start;
         }
         @media (min-width: 640px) {
-          .chat-msg__bubble-wrap { max-width: 80%; }
+          .chat-msg__bubble-wrap { max-width: 75%; }
         }
         @media (min-width: 1024px) {
-          .chat-msg__bubble-wrap { max-width: 75%; }
+          .chat-msg__bubble-wrap { max-width: 70%; }
         }
 
         /* Bubble */
@@ -529,6 +529,7 @@ const ChatBox = () => {
           word-wrap: break-word;
           overflow-wrap: break-word;
           word-break: break-word;
+          white-space: pre-wrap;
           overflow: hidden;
           max-width: 100%;
         }

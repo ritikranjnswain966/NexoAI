@@ -45,7 +45,7 @@ const Credits = () => {
   if(loading) return <Loading />
 
   return (
-    <div className='max-w-7xl h-screen overflow-y-scroll mx-auto px-4 sm:px-6 lg:px-8 py-12'>
+    <div className='max-w-7xl overflow-y-scroll mx-auto px-4 sm:px-6 lg:px-8 py-12' style={{height: '100dvh'}}>
       <h2 className='text-3xl font-semibold text-center mb-10 xl:mt-30 text-gray-800 dark:text-white'>Credits Plans</h2>
       
       <div className='flex flex-wrap justify-center gap-8'>
