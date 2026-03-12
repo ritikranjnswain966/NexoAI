@@ -43,8 +43,8 @@ const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
 
             {/*New chat button*/}
             <button onClick={(e) => {
-                console.log("New Chat Button Clicked in Sidebar!");
                 createNewChat(e);
+                setIsMenuOpen(false);
             }} className='flex justify-center items-center w-full py-3 mt-6 text-white font-semibold bg-linear-to-r from-blue-500 via-violet-500 to-purple-500 text-sm rounded-xl cursor-pointer transition-all duration-300 shadow-[0_4px_20px_rgba(59,130,246,0.3)] hover:shadow-[0_4px_30px_rgba(59,130,246,0.5)] hover:scale-[1.02] active:scale-[0.98]'>
                 <span className='mr-2 text-lg font-light'>+</span> New Chat
             </button>
