@@ -10,17 +10,30 @@ const ChatBox = () => {
   const containerRef = useRef(null)
   const bottomRef = useRef(null)
   const textareaRef = useRef(null)
+  const abortControllerRef = useRef(null)
 
   const {selectedChat, setSelectedChat, theme, user, axios, token, setUser, isNewChat, setIsNewChat, fetchUsersChats, navigate} = useAppContext()
   const { chatId: urlChatId } = useParams()
 
   const [messages, setMessages] = useState([])
   const [loading, setLoading] = useState(false)
+  const [streaming, setStreaming] = useState(false)
 
   const [prompt, setPrompt] = useState('')
   const [mode, setMode] = useState('text')
+  const [aiModel, setAiModel] = useState('medium')
+  const [showModelMenu, setShowModelMenu] = useState(false)
   const [isPublished, setIsPublished] = useState(false)
   const [showScrollBtn, setShowScrollBtn] = useState(false)
+
+  const modelOptions = [
+    { id: 'basic', label: 'Basic', emoji: '⚡', desc: 'Fast & light', color: '#10b981' },
+    { id: 'medium', label: 'Medium', emoji: '🔷', desc: 'Balanced', color: '#3b82f6' },
+    { id: 'pro', label: 'Pro', emoji: '💎', desc: 'Advanced reasoning', color: '#8b5cf6' },
+    { id: 'high', label: 'High', emoji: '🚀', desc: 'Most capable', color: '#f43f5e' },
+  ]
+  const activeModel = modelOptions.find(m => m.id === aiModel) || modelOptions[1]
+  const modelCosts = { basic: 1, medium: 2, pro: 4, high: 8 }
 
   const scrollToBottom = useCallback((behavior = 'smooth') => {
     if (bottomRef.current) {
@@ -28,23 +41,80 @@ const ChatBox = () => {
     }
   }, [])
 
+  // Stop generation handler
+  const handleStop = useCallback(() => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort()
+    }
+  }, [])
+
+  // Helper: stream text from SSE endpoint
+  const streamTextResponse = async (chatId, promptText) => {
+    abortControllerRef.current = new AbortController()
+
+    const res = await fetch(`${axios.defaults.baseURL}/api/message/text`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': token },
+      body: JSON.stringify({ chatId, prompt: promptText, aiModel }),
+      signal: abortControllerRef.current.signal
+    })
+
+    if (!res.ok) throw new Error(`Server error: ${res.status}`)
+
+    const reader = res.body.getReader()
+    const decoder = new TextDecoder()
+    let full = ''
+    let firstChunk = true
+
+    while (true) {
+      const { value, done } = await reader.read()
+      if (done) break
+
+      const text = decoder.decode(value, { stream: true })
+      for (const line of text.split('\n')) {
+        if (!line.startsWith('data: ')) continue
+        const payload = line.slice(6)
+        if (payload === '[DONE]') break
+        try {
+          const { content, error } = JSON.parse(payload)
+          if (error) { toast.error(error); break }
+          if (content) {
+            // On first chunk: switch from thinking dots to streaming text
+            if (firstChunk) {
+              firstChunk = false
+              setStreaming(true)
+              setMessages(prev => [...prev, {role: 'assistant', content: '', timestamp: Date.now(), isImage: false }])
+            }
+            full += content
+            const snapshot = full
+            setMessages(prev => {
+              const msgs = [...prev]
+              msgs[msgs.length - 1] = { ...msgs[msgs.length - 1], content: snapshot }
+              return msgs
+            })
+          }
+        } catch { /* incomplete chunk, ignore */ }
+      }
+    }
+
+    setUser(prev => ({...prev, credits: prev.credits - (modelCosts[aiModel] || 1)}))
+  }
+
   const onSubmit = async (e) => {
     try {
       e.preventDefault()
       if(!user) return toast('Login to send message')
+      if(loading) return
       setLoading(true)
       const promptCopy = prompt
       setPrompt('')
-      // Reset textarea height after sending
-      if (textareaRef.current) {
-        textareaRef.current.style.height = 'auto'
-      }
+      if (textareaRef.current) textareaRef.current.style.height = 'auto'
 
-      // --- New chat flow: create chat with first message ---
+      // --- Resolve or create chat ---
+      let chatId = selectedChat?._id || null
+
       if (isNewChat || !selectedChat) {
         setMessages([{role: 'user', content: promptCopy, timestamp: Date.now(), isImage: false }])
-
-        // 1. Create the chat on the server with the first message
         const {data: chatData} = await axios.post('/api/chat/create-with-message', {prompt: promptCopy}, {headers: {Authorization: token}})
         if (!chatData.success) {
           toast.error(chatData.message || 'Error creating chat')
@@ -52,51 +122,44 @@ const ChatBox = () => {
           setLoading(false)
           return
         }
-
         const newChat = chatData.chat
         setSelectedChat(newChat)
         setIsNewChat(false)
         fetchUsersChats()
-        sessionStorage.setItem('activeChatId', newChat._id)
-        navigate(`/chat/${newChat._id}`, { replace: true })
+        chatId = newChat._id
+        sessionStorage.setItem('activeChatId', chatId)
+        navigate(`/chat/${chatId}`, { replace: true })
+      } else {
+        setMessages(prev => [...prev, {role: 'user', content: promptCopy, timestamp: Date.now(), isImage: false }])
+      }
 
-        // 2. Now send the AI message using the new chatId
-        const {data} = await axios.post(`/api/message/${mode}`, {chatId: newChat._id, prompt: promptCopy, isPublished}, {headers: {Authorization: token}})
-        if(data.success){
+      // --- Image mode (unchanged, uses axios) ---
+      if (mode === 'image') {
+        const {data} = await axios.post('/api/message/image', {chatId, prompt: promptCopy, isPublished}, {headers: {Authorization: token}})
+        if (data.success) {
           setMessages(prev => [...prev, data.reply])
-          if (mode === 'image') {
-            setUser(prev => ({...prev, credits: prev.credits - 2}))
-          } else {
-            setUser(prev => ({...prev, credits: prev.credits - 1}))
-          }
+          setUser(prev => ({...prev, credits: prev.credits - 2}))
         } else {
           toast.error(data.message)
+          setPrompt(promptCopy)
         }
         setLoading(false)
         return
       }
 
-      // --- Existing chat flow ---
-      setMessages(prev => [...prev, {role: 'user', content: promptCopy, timestamp: Date.now(), isImage: false }])
+      // --- Text mode (SSE streaming with abort) ---
+      await streamTextResponse(chatId, promptCopy)
 
-      const {data} = await axios.post(`/api/message/${mode}`, {chatId: selectedChat._id, prompt: promptCopy, isPublished}, {headers: {Authorization: token}})
-
-      if(data.success){
-        setMessages(prev => [...prev, data.reply])
-        if (mode === 'image') {
-          setUser(prev => ({...prev, credits: prev.credits - 2}))
-        }else{
-          setUser(prev => ({...prev, credits: prev.credits - 1}))
-        }
-      }else{
-        toast.error(data.message)
-        setPrompt(promptCopy)
-      }
     } catch (error) {
-      toast.error(error.message)
-    }finally{
-      setPrompt('')
+      if (error.name === 'AbortError') {
+        setUser(prev => ({...prev, credits: prev.credits - (modelCosts[aiModel] || 1)}))
+      } else {
+        toast.error(error.message)
+      }
+    } finally {
       setLoading(false)
+      setStreaming(false)
+      abortControllerRef.current = null
     }
   }
 
@@ -211,8 +274,8 @@ const ChatBox = () => {
             <Message key={index} message={message} isLatest={index === messages.length - 1} />
           ))}
 
-          {/* AI Thinking Indicator */}
-          {loading && (
+          {/* AI Thinking Indicator — only show when loading but NOT yet streaming */}
+          {loading && !streaming && (
             <div className='chat-msg chat-msg--ai chat-msg--latest'>
               <div className='chat-msg__avatar-wrap'>
                 <div className='chat-msg__avatar chat-msg__avatar--ai'>
@@ -258,9 +321,10 @@ const ChatBox = () => {
           {/* Glass Dock Container */}
           <div className='w-full flex flex-col gap-3 backdrop-blur-2xl bg-white/60 dark:bg-[#0f172a]/70 p-2 sm:p-3 rounded-t-3xl sm:rounded-3xl border-t sm:border border-white/50 dark:border-blue-500/20 shadow-[0_-8px_32px_rgba(0,0,0,0.04)] sm:shadow-[0_8px_32px_rgba(0,0,0,0.08)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.25)] transition-all duration-500'>
             
-            {/* Top Bar: Toggle & Publish */}
-            <div className='flex items-center justify-between px-1 sm:px-2'>
-              {/* Modern Segmented Toggle */}
+            {/* Top Bar: Toggle, Model Selector & Publish */}
+            <div className='flex flex-row items-center justify-between px-1 sm:px-2 gap-2'>
+              
+              {/* Row 1: Text/Image Toggle */}
               <div className='relative flex bg-slate-200/50 dark:bg-slate-800/80 rounded-full p-1 border border-transparent shadow-inner'>
                 <div className={`absolute top-1 h-[calc(100%-8px)] w-[calc(50%-4px)] bg-white dark:bg-slate-600 rounded-full transition-all duration-300 shadow-sm ${mode === 'image' ? 'left-[calc(50%+2px)]' : 'left-1'}`}></div>
                 <button type='button' onClick={() => setMode('text')} className={`relative z-10 px-4 sm:px-5 py-1.5 text-xs font-semibold rounded-full transition-all duration-300 cursor-pointer flex items-center gap-1.5 ${mode === 'text' ? 'text-blue-600 dark:text-blue-300' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}`}>
@@ -271,9 +335,54 @@ const ChatBox = () => {
                 </button>
               </div>
 
-              {/* Publish Toggle */}
+              {/* Model Selector: Single button + dropdown popup */}
+              {mode === 'text' && (
+                <div className='relative'>
+                  <button
+                    type='button'
+                    onClick={() => setShowModelMenu(!showModelMenu)}
+                    className='flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold transition-all duration-200 cursor-pointer border'
+                    style={{
+                      background: `${activeModel.color}15`,
+                      borderColor: `${activeModel.color}40`,
+                      color: activeModel.color
+                    }}
+                  >
+                    <span className='w-2 h-2 rounded-full' style={{ background: activeModel.color }} />
+                    {activeModel.label}
+                    <svg className={`w-3 h-3 transition-transform duration-200 ${showModelMenu ? 'rotate-180' : ''}`} fill='none' stroke='currentColor' strokeWidth='2.5' viewBox='0 0 24 24'><polyline points='6 9 12 15 18 9'/></svg>
+                  </button>
+
+                  {/* Dropdown popup */}
+                  {showModelMenu && (
+                    <>
+                      <div className='fixed inset-0 z-40' onClick={() => setShowModelMenu(false)} />
+                      <div className='absolute bottom-full left-0 mb-2 z-50 w-48 py-1.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xl shadow-black/10 dark:shadow-black/30 animate-in fade-in slide-in-from-bottom-2'>
+                        {modelOptions.map(m => (
+                          <button
+                            key={m.id}
+                            type='button'
+                            onClick={() => { setAiModel(m.id); setShowModelMenu(false) }}
+                            className={`w-full flex items-center gap-2.5 px-3 py-2 text-left transition-colors duration-150 cursor-pointer ${aiModel === m.id ? 'bg-slate-100 dark:bg-slate-700/60' : 'hover:bg-slate-50 dark:hover:bg-slate-700/30'}`}
+                          >
+                            <span className='w-2 h-2 rounded-full shrink-0' style={{ background: m.color }} />
+                            <div className='flex flex-col min-w-0'>
+                              <span className={`text-xs font-semibold ${aiModel === m.id ? 'text-slate-900 dark:text-white' : 'text-slate-700 dark:text-slate-300'}`}>{m.emoji} {m.label}</span>
+                              <span className='text-[10px] text-slate-400 dark:text-slate-500'>{m.desc}</span>
+                            </div>
+                            {aiModel === m.id && (
+                              <svg className='w-3.5 h-3.5 ml-auto text-blue-500 shrink-0' fill='none' stroke='currentColor' strokeWidth='3' viewBox='0 0 24 24'><polyline points='20 6 9 17 4 12'/></svg>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
+
               {mode === 'image' && (
-                <label className='flex items-center gap-2 text-xs font-medium text-slate-500 dark:text-slate-300 cursor-pointer select-none bg-slate-100/50 dark:bg-slate-800/50 backdrop-blur-sm px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-700/50 transition-colors hover:bg-slate-200/50 dark:hover:bg-slate-700/50'>
+                <label className='flex items-center justify-center gap-2 text-xs font-medium text-slate-500 dark:text-slate-300 cursor-pointer select-none bg-slate-100/50 dark:bg-slate-800/50 backdrop-blur-sm px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-700/50 transition-colors hover:bg-slate-200/50 dark:hover:bg-slate-700/50'>
                   <div className='relative'>
                     <input type="checkbox" className='sr-only peer' checked={isPublished} onChange={(e) => setIsPublished(e.target.checked)} />
                     <div className='w-8 h-4 bg-slate-300 dark:bg-slate-600 rounded-full peer-checked:bg-blue-500 transition-all'></div>
@@ -289,10 +398,17 @@ const ChatBox = () => {
               <textarea ref={textareaRef} onChange={(e) => setPrompt(e.target.value)} onKeyDown={handleKeyDown} value={prompt} rows={1} placeholder={mode === 'image' ? "Describe the image you want to generate..." : "Type your prompt here..."} className='w-full bg-transparent outline-none px-6 py-3.5 sm:py-4 text-[15px] font-outfit placeholder:text-slate-400 dark:placeholder:text-slate-500 min-w-0 resize-none overflow-y-auto' style={{maxHeight: '200px'}} required />
               
               <div className='pr-2 sm:pr-2.5 flex items-center shrink-0'>
-                <button disabled={loading} type="submit" className={`relative flex items-center justify-center w-10 sm:w-11 h-10 sm:h-11 rounded-full border-none cursor-pointer transition-all duration-300 overflow-hidden group ${loading ? 'animate-pulse bg-red-500 shadow-[0_2px_10px_rgba(239,68,68,0.3)]' : 'bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 shadow-[0_2px_10px_rgba(59,130,246,0.3)]'}`}>
-                  <span className="absolute inset-0 bg-white/20 -translate-x-full group-hover:translate-x-full transition-transform duration-500 ease-in-out" />
-                  <img src={loading ? assets.stop_icon : assets.send_icon} className='w-4 sm:w-5 h-4 sm:h-5 relative z-10 filter brightness-0 invert transition-transform group-hover:scale-110' alt={loading ? "Stop" : "Send"} />
-                </button>
+                {loading ? (
+                  <button type="button" onClick={handleStop} className='relative flex items-center justify-center w-10 sm:w-11 h-10 sm:h-11 rounded-full border-none cursor-pointer transition-all duration-300 overflow-hidden group bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 shadow-[0_2px_10px_rgba(239,68,68,0.3)]'>
+                    <span className="absolute inset-0 bg-white/20 -translate-x-full group-hover:translate-x-full transition-transform duration-500 ease-in-out" />
+                    <img src={assets.stop_icon} className='w-4 sm:w-5 h-4 sm:h-5 relative z-10 filter brightness-0 invert transition-transform group-hover:scale-110' alt="Stop" />
+                  </button>
+                ) : (
+                  <button type="submit" className='relative flex items-center justify-center w-10 sm:w-11 h-10 sm:h-11 rounded-full border-none cursor-pointer transition-all duration-300 overflow-hidden group bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 shadow-[0_2px_10px_rgba(59,130,246,0.3)]'>
+                    <span className="absolute inset-0 bg-white/20 -translate-x-full group-hover:translate-x-full transition-transform duration-500 ease-in-out" />
+                    <img src={assets.send_icon} className='w-4 sm:w-5 h-4 sm:h-5 relative z-10 filter brightness-0 invert transition-transform group-hover:scale-110' alt="Send" />
+                  </button>
+                )}
               </div>
             </form>
           </div>

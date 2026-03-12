@@ -12,6 +12,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@google/genai": "^1.44.0",
     "@imagekit/nodejs": "^7.3.0",
     "axios": "^1.13.6",
     "bcryptjs": "^3.0.3",
@@ -21,7 +22,6 @@
     "imagekit": "^6.0.0",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.2.3",
-    "openai": "^6.25.0",
     "stripe": "^20.4.0",
     "svix": "^1.86.0"
   },

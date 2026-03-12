@@ -1,23 +1,31 @@
 import axios from "axios";
 import Chat from "../models/Chat.js";
 import User from "../models/User.js";
-import openai from "../configs/openai.js";
+import ai from "../configs/gemini.js";
 import imagekit from "../configs/imageKit.js";
 
-// Text-based AI Chat Message Controller
+// Text-based AI Chat Message Controller (SSE Streaming with Gemini SDK)
 export const textMessageController = async (req, res) => {
   try {
     const userId = req.user._id;
+    const { chatId, prompt, aiModel } = req.body;
+
+    // Model configs: map frontend selection to Gemini model IDs and credit costs
+    const modelConfigs = {
+      basic:  { id: "gemini-2.5-flash-lite",    cost: 1 },
+      medium: { id: "gemini-2.5-flash",          cost: 2 },
+      pro:    { id: "gemini-2.5-pro",            cost: 4 },
+      high:   { id: "gemini-3.1-pro-preview",    cost: 8 },
+    };
+    const config = modelConfigs[aiModel] || modelConfigs.medium;
 
     //check credits
-    if (req.user.credits < 1) {
+    if (req.user.credits < config.cost) {
       return res.json({
         success: false,
-        message: "You don't have enough credits to use this feature",
+        message: `Not enough credits. ${aiModel || 'medium'} needs ${config.cost} credits.`,
       });
     }
-
-    const { chatId, prompt } = req.body;
 
     const chat = await Chat.findOne({ userId, _id: chatId });
     chat.messages.push({
@@ -27,33 +35,62 @@ export const textMessageController = async (req, res) => {
       isImage: false,
     });
 
-    const response = await openai.chat.completions.create({
-      model: "gemini-3-flash-preview",
-      messages: [
-        {
-          role: "system",
-          content: `You are a highly capable AI assistant. The current date and local time is ${new Date().toLocaleString()}. Always use this real-time information when the user asks about the date or time.`,
-        },
-        {
-          role: "user",
-          content: prompt,
-        },
-      ],
+    // SSE headers for real-time streaming
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+    res.flushHeaders();
+
+    const systemInstruction = `You are a highly capable AI assistant. The current date and local time is ${new Date().toLocaleString()}. Always use this real-time information when the user asks about the date or time.`;
+
+    // Stream using native Gemini SDK
+    const stream = await ai.models.generateContentStream({
+      model: config.id,
+      contents: prompt,
+      config: {
+        systemInstruction,
+      },
     });
 
-    const reply = {
-      ...response.choices[0].message,
-      timestamp: Date.now(),
-      isImage: false,
-    };
-    res.json({ success: true, reply });
+    let fullText = "";
+    let aborted = false;
 
-    chat.messages.push(reply);
-    await chat.save();
+    req.on("close", () => {
+      aborted = true;
+    });
 
-    await User.updateOne({ _id: userId }, { $inc: { credits: -1 } });
+    for await (const chunk of stream) {
+      if (aborted) break;
+      const content = chunk.text || "";
+      if (content) {
+        fullText += content;
+        res.write(`data: ${JSON.stringify({ content })}\n\n`);
+      }
+    }
+
+    if (!aborted) {
+      res.write(`data: [DONE]\n\n`);
+      res.end();
+    }
+
+    // Save full or partial response to DB
+    if (fullText) {
+      chat.messages.push({
+        role: "assistant",
+        content: fullText,
+        timestamp: Date.now(),
+        isImage: false,
+      });
+      await chat.save();
+      await User.updateOne({ _id: userId }, { $inc: { credits: -config.cost } });
+    }
   } catch (error) {
-    res.json({ success: false, message: error.message });
+    if (!res.headersSent) {
+      res.json({ success: false, message: error.message });
+    } else {
+      res.write(`data: ${JSON.stringify({ error: error.message })}\n\n`);
+      res.end();
+    }
   }
 };
 
