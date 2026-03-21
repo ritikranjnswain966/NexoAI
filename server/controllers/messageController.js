@@ -12,10 +12,10 @@ export const textMessageController = async (req, res) => {
 
     // Model configs: map frontend selection to Gemini model IDs and credit costs
     const modelConfigs = {
-      basic:  { id: "gemini-2.5-flash-lite",    cost: 1 },
-      medium: { id: "gemini-2.5-flash",          cost: 2 },
-      pro:    { id: "gemini-2.5-pro",            cost: 4 },
-      high:   { id: "gemini-3.1-pro-preview",    cost: 8 },
+      basic: { id: "gemini-2.5-flash-lite", cost: 1 },
+      medium: { id: "gemini-2.5-flash", cost: 2 },
+      pro: { id: "gemini-2.5-pro", cost: 4 },
+      high: { id: "gemini-3.1-pro-preview", cost: 8 },
     };
     const config = modelConfigs[aiModel] || modelConfigs.medium;
 
@@ -23,7 +23,7 @@ export const textMessageController = async (req, res) => {
     if (req.user.credits < config.cost) {
       return res.json({
         success: false,
-        message: `Not enough credits. ${aiModel || 'medium'} needs ${config.cost} credits.`,
+        message: `Not enough credits. ${aiModel || "medium"} needs ${config.cost} credits.`,
       });
     }
 
@@ -82,7 +82,10 @@ export const textMessageController = async (req, res) => {
         isImage: false,
       });
       await chat.save();
-      await User.updateOne({ _id: userId }, { $inc: { credits: -config.cost } });
+      await User.updateOne(
+        { _id: userId },
+        { $inc: { credits: -config.cost } },
+      );
     }
   } catch (error) {
     if (!res.headersSent) {
@@ -116,6 +119,28 @@ export const imageMessageController = async (req, res) => {
       isImage: false,
     });
 
+    // --- NEW: GEMINI 3.1 IMAGE GENERATION (Via generateContent) ---
+    // Generate the image using Google Gemini 3.1 Flash Image Preview
+    const response = await ai.models.generateContent({
+      model: "gemini-3.1-flash-image-preview",
+      contents: prompt,
+    });
+
+    let base64Image = "";
+    for (const part of response.candidates[0].content.parts) {
+      if (part.inlineData) {
+        // Construct the base64 data URI expected by ImageKit upload
+        base64Image = `data:image/png;base64,${part.inlineData.data}`;
+        break;
+      }
+    }
+
+    if (!base64Image) {
+      throw new Error("No image was returned from the Gemini model.");
+    }
+
+    // --- OLD: IMAGEKIT AI GENERATION LOGIC (Commented out) ---
+    /*
     //Encode the prompt
     const encodedPrompt = encodeURIComponent(prompt);
 
@@ -128,7 +153,8 @@ export const imageMessageController = async (req, res) => {
     });
 
     //COnvert image response to base64
-    const base64Image = `data:image/png;base64,${Buffer.from(aiImageResponse.data, "binary").toString("base64")}`;
+    const base64Image = \`data:image/png;base64,\${Buffer.from(aiImageResponse.data, "binary").toString("base64")}\`;
+    */
 
     //Upload image to ImageKit
     const uploadResponse = await imagekit.files.upload({
