@@ -28,7 +28,7 @@ Nexo is a full-stack AI-powered chat application. It allows users to interact wi
 - **Database**: MongoDB (Mongoose)
 - **Authentication**: JWT, bcryptjs
 - **Payments**: Stripe
-- **AI Integration**: OpenAI SDK
+- **AI Integration**: Gemini SDK
 - **Media Storage**: ImageKit
 - **Webhooks**: Svix
 

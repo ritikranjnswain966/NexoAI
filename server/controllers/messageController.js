@@ -1,4 +1,3 @@
-import axios from "axios";
 import Chat from "../models/Chat.js";
 import User from "../models/User.js";
 import ai from "../configs/gemini.js";
@@ -138,23 +137,6 @@ export const imageMessageController = async (req, res) => {
     if (!base64Image) {
       throw new Error("No image was returned from the Gemini model.");
     }
-
-    // --- OLD: IMAGEKIT AI GENERATION LOGIC (Commented out) ---
-    /*
-    //Encode the prompt
-    const encodedPrompt = encodeURIComponent(prompt);
-
-    //Construct ImageKit AI generation URL
-    const generatedImageUrl = `${process.env.IMAGEKIT_URL_ENDPOINT}/ik-genimg-prompt-${encodedPrompt}/nexo/${Date.now()}.png?tr=w-800,h-800`;
-
-    //Push AI response as image message
-    const aiImageResponse = await axios.get(generatedImageUrl, {
-      responseType: "arraybuffer",
-    });
-
-    //COnvert image response to base64
-    const base64Image = \`data:image/png;base64,\${Buffer.from(aiImageResponse.data, "binary").toString("base64")}\`;
-    */
 
     //Upload image to ImageKit
     const uploadResponse = await imagekit.files.upload({

@@ -31,7 +31,6 @@ export const getChats = async (req, res) => {
   }
 };
 
-//API controller for deleting chat
 // API Controller for creating a new chat with the first message
 export const createChatWithMessage = async (req, res) => {
   try {
