@@ -12,7 +12,7 @@ const ChatBox = () => {
   const textareaRef = useRef(null)
   const abortControllerRef = useRef(null)
 
-  const {selectedChat, setSelectedChat, theme, user, axios, token, setUser, isNewChat, setIsNewChat, fetchUsersChats, navigate} = useAppContext()
+  const { selectedChat, setSelectedChat, theme, user, axios, token, setUser, isNewChat, setIsNewChat, fetchUsersChats, navigate } = useAppContext()
   const { chatId: urlChatId } = useParams()
 
   const [messages, setMessages] = useState([])
@@ -83,7 +83,7 @@ const ChatBox = () => {
             if (firstChunk) {
               firstChunk = false
               setStreaming(true)
-              setMessages(prev => [...prev, {role: 'assistant', content: '', timestamp: Date.now(), isImage: false }])
+              setMessages(prev => [...prev, { role: 'assistant', content: '', timestamp: Date.now(), isImage: false }])
             }
             full += content
             const snapshot = full
@@ -97,14 +97,14 @@ const ChatBox = () => {
       }
     }
 
-    setUser(prev => ({...prev, credits: prev.credits - (modelCosts[aiModel] || 1)}))
+    setUser(prev => ({ ...prev, credits: prev.credits - (modelCosts[aiModel] || 1) }))
   }
 
   const onSubmit = async (e) => {
     try {
       e.preventDefault()
-      if(!user) return toast('Login to send message')
-      if(loading) return
+      if (!user) return toast('Login to send message')
+      if (loading) return
       setLoading(true)
       const promptCopy = prompt
       setPrompt('')
@@ -114,8 +114,8 @@ const ChatBox = () => {
       let chatId = selectedChat?._id || null
 
       if (isNewChat || !selectedChat) {
-        setMessages([{role: 'user', content: promptCopy, timestamp: Date.now(), isImage: false }])
-        const {data: chatData} = await axios.post('/api/chat/create-with-message', {prompt: promptCopy}, {headers: {Authorization: token}})
+        setMessages([{ role: 'user', content: promptCopy, timestamp: Date.now(), isImage: false }])
+        const { data: chatData } = await axios.post('/api/chat/create-with-message', { prompt: promptCopy }, { headers: { Authorization: token } })
         if (!chatData.success) {
           toast.error(chatData.message || 'Error creating chat')
           setPrompt(promptCopy)
@@ -130,15 +130,15 @@ const ChatBox = () => {
         sessionStorage.setItem('activeChatId', chatId)
         navigate(`/chat/${chatId}`, { replace: true })
       } else {
-        setMessages(prev => [...prev, {role: 'user', content: promptCopy, timestamp: Date.now(), isImage: false }])
+        setMessages(prev => [...prev, { role: 'user', content: promptCopy, timestamp: Date.now(), isImage: false }])
       }
 
       // --- Image mode (unchanged, uses axios) ---
       if (mode === 'image') {
-        const {data} = await axios.post('/api/message/image', {chatId, prompt: promptCopy, isPublished}, {headers: {Authorization: token}})
+        const { data } = await axios.post('/api/message/image', { chatId, prompt: promptCopy, isPublished }, { headers: { Authorization: token } })
         if (data.success) {
           setMessages(prev => [...prev, data.reply])
-          setUser(prev => ({...prev, credits: prev.credits - 2}))
+          setUser(prev => ({ ...prev, credits: prev.credits - 2 }))
         } else {
           toast.error(data.message)
           setPrompt(promptCopy)
@@ -152,7 +152,7 @@ const ChatBox = () => {
 
     } catch (error) {
       if (error.name === 'AbortError') {
-        setUser(prev => ({...prev, credits: prev.credits - (modelCosts[aiModel] || 1)}))
+        setUser(prev => ({ ...prev, credits: prev.credits - (modelCosts[aiModel] || 1) }))
       } else {
         toast.error(error.message)
       }
@@ -171,12 +171,12 @@ const ChatBox = () => {
     setShowScrollBtn(distanceFromBottom > 150)
   }, [])
 
-  useEffect(()=>{
-    if(selectedChat){
+  useEffect(() => {
+    if (selectedChat) {
       setMessages(selectedChat.messages)
       setIsNewChat(false)
     }
-  },[selectedChat])
+  }, [selectedChat])
 
   // Fetch chat from URL on mount/refresh
   useEffect(() => {
@@ -206,11 +206,11 @@ const ChatBox = () => {
     }
   }, [urlChatId, token])
 
-  useEffect(()=>{
+  useEffect(() => {
     // small delay so DOM updates before scroll
     const t = setTimeout(() => scrollToBottom('smooth'), 80)
     return () => clearTimeout(t)
-  },[messages, scrollToBottom])
+  }, [messages, scrollToBottom])
 
   useEffect(() => {
     const el = containerRef.current
@@ -280,9 +280,9 @@ const ChatBox = () => {
               <div className='chat-msg__avatar-wrap'>
                 <div className='chat-msg__avatar chat-msg__avatar--ai'>
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M12 2L2 7l10 5 10-5-10-5z"/>
-                    <path d="M2 17l10 5 10-5"/>
-                    <path d="M2 12l10 5 10-5"/>
+                    <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                    <path d="M2 17l10 5 10-5" />
+                    <path d="M2 12l10 5 10-5" />
                   </svg>
                 </div>
               </div>
@@ -310,20 +310,20 @@ const ChatBox = () => {
         aria-label="Scroll to bottom"
       >
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <polyline points="6 9 12 15 18 9"/>
+          <polyline points="6 9 12 15 18 9" />
         </svg>
       </button>
 
       {/* Modern Floating Chat Input Area */}
       <div className='chatbox-footer'>
         <div className='chatbox-footer-inner'>
-          
+
           {/* Glass Dock Container */}
           <div className='w-full flex flex-col gap-3 backdrop-blur-2xl bg-white/60 dark:bg-[#0f172a]/70 p-2 sm:p-3 rounded-t-3xl sm:rounded-3xl border-t sm:border border-white/50 dark:border-blue-500/20 shadow-[0_-8px_32px_rgba(0,0,0,0.04)] sm:shadow-[0_8px_32px_rgba(0,0,0,0.08)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.25)] transition-all duration-500'>
-            
+
             {/* Top Bar: Toggle, Model Selector & Publish */}
             <div className='flex flex-row items-center justify-between px-1 sm:px-2 gap-2'>
-              
+
               {/* Row 1: Text/Image Toggle */}
               <div className='relative flex bg-slate-200/50 dark:bg-slate-800/80 rounded-full p-1 border border-transparent shadow-inner'>
                 <div className={`absolute top-1 h-[calc(100%-8px)] w-[calc(50%-4px)] bg-white dark:bg-slate-600 rounded-full transition-all duration-300 shadow-sm ${mode === 'image' ? 'left-[calc(50%+2px)]' : 'left-1'}`}></div>
@@ -350,7 +350,7 @@ const ChatBox = () => {
                   >
                     <span className='w-2 h-2 rounded-full' style={{ background: activeModel.color }} />
                     {activeModel.label}
-                    <svg className={`w-3 h-3 transition-transform duration-200 ${showModelMenu ? 'rotate-180' : ''}`} fill='none' stroke='currentColor' strokeWidth='2.5' viewBox='0 0 24 24'><polyline points='6 9 12 15 18 9'/></svg>
+                    <svg className={`w-3 h-3 transition-transform duration-200 ${showModelMenu ? 'rotate-180' : ''}`} fill='none' stroke='currentColor' strokeWidth='2.5' viewBox='0 0 24 24'><polyline points='6 9 12 15 18 9' /></svg>
                   </button>
 
                   {/* Dropdown popup */}
@@ -371,7 +371,7 @@ const ChatBox = () => {
                               <span className='text-[10px] text-slate-400 dark:text-slate-500'>{m.desc}</span>
                             </div>
                             {aiModel === m.id && (
-                              <svg className='w-3.5 h-3.5 ml-auto text-blue-500 shrink-0' fill='none' stroke='currentColor' strokeWidth='3' viewBox='0 0 24 24'><polyline points='20 6 9 17 4 12'/></svg>
+                              <svg className='w-3.5 h-3.5 ml-auto text-blue-500 shrink-0' fill='none' stroke='currentColor' strokeWidth='3' viewBox='0 0 24 24'><polyline points='20 6 9 17 4 12' /></svg>
                             )}
                           </button>
                         ))}
@@ -395,8 +395,8 @@ const ChatBox = () => {
 
             {/* Input Form with modern styling */}
             <form onSubmit={onSubmit} className='relative flex items-end w-full bg-white dark:bg-[#1e293b]/80 text-slate-800 dark:text-white rounded-2xl transition-all duration-300 border border-slate-200 dark:border-slate-700/60 focus-within:ring-4 focus-within:ring-blue-500/10 focus-within:border-blue-400 dark:focus-within:border-blue-500/50 dark:focus-within:ring-blue-500/20 shadow-inner dark:shadow-none'>
-              <textarea ref={textareaRef} onChange={(e) => setPrompt(e.target.value)} onKeyDown={handleKeyDown} value={prompt} rows={1} placeholder={mode === 'image' ? "Describe the image you want to generate..." : "Type your prompt here..."} className='w-full bg-transparent outline-none px-6 py-3.5 sm:py-4 text-[15px] font-outfit placeholder:text-slate-400 dark:placeholder:text-slate-500 min-w-0 resize-none overflow-y-auto' style={{maxHeight: '200px'}} required />
-              
+              <textarea ref={textareaRef} onChange={(e) => setPrompt(e.target.value)} onKeyDown={handleKeyDown} value={prompt} rows={1} placeholder={mode === 'image' ? "Describe the image you want to generate..." : "Type your prompt here..."} className='w-full bg-transparent outline-none px-6 py-3.5 sm:py-4 text-[15px] font-outfit placeholder:text-slate-400 dark:placeholder:text-slate-500 min-w-0 resize-none overflow-y-auto' style={{ maxHeight: '200px' }} required />
+
               <div className='pr-2 sm:pr-2.5 flex items-center shrink-0'>
                 {loading ? (
                   <button type="button" onClick={handleStop} className='relative flex items-center justify-center w-10 sm:w-11 h-10 sm:h-11 rounded-full border-none cursor-pointer transition-all duration-300 overflow-hidden group bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 shadow-[0_2px_10px_rgba(239,68,68,0.3)]'>
