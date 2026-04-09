@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+﻿import React, { useState } from "react";
 import Sidebar from "./components/Sidebar";
 import { Routes, Route, useLocation } from "react-router-dom";
-import ChatBox from "./components/ChatBox";
+import ChatPage from "./components/chat/ChatPage";
 import Credits from "./pages/Credits";
 import Community from "./pages/Community";
 import { assets } from "./assets/assets";
@@ -22,7 +22,6 @@ const App = () => {
   return (
     <>
       <Toaster />
-      {/* Mobile Header Bar — only visible below md breakpoint */}
       {!isMenuOpen && (
         <div className="mobile-header md:hidden">
           <button
@@ -32,7 +31,7 @@ const App = () => {
           >
             <img
               src={assets.menu_icon}
-              className="w-6 h-6 not-dark:invert"
+              className="h-6 w-6 not-dark:invert"
               alt="Menu"
             />
           </button>
@@ -52,12 +51,15 @@ const App = () => {
       )}
 
       {user ? (
-        <div className="bg-gradient-to-br from-slate-50 via-white to-blue-50/30 dark:bg-gradient-to-br dark:from-[#030712] dark:via-[#0f172a] dark:to-[#030712] dark:text-gray-100 transition-colors duration-500" style={{minHeight: '100dvh'}}>
-          <div className="flex w-screen" style={{height: '100dvh'}}>
+        <div
+          className="bg-[linear-gradient(180deg,#f8fbff,#eef4ff)] text-slate-900 transition-colors duration-500 dark:bg-[linear-gradient(180deg,#030712,#020617)] dark:text-gray-100"
+          style={{ minHeight: "100dvh" }}
+        >
+          <div className="flex w-screen" style={{ height: "100dvh" }}>
             <Sidebar isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} />
             <Routes>
-              <Route path="/" element={<ChatBox />} />
-              <Route path="/chat/:chatId" element={<ChatBox />} />
+              <Route path="/" element={<ChatPage />} />
+              <Route path="/chat/:chatId" element={<ChatPage />} />
               <Route path="/credits" element={<Credits />} />
               <Route path="/community" element={<Community />} />
             </Routes>

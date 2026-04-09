@@ -7,7 +7,7 @@ import imagekit from "../configs/imageKit.js";
 export const textMessageController = async (req, res) => {
   try {
     const userId = req.user._id;
-    const { chatId, prompt, aiModel } = req.body;
+    const { chatId, prompt, aiModel, skipUserMessagePersist = false } = req.body;
 
     // Model configs: map frontend selection to Gemini model IDs and credit costs
     const modelConfigs = {
@@ -27,12 +27,19 @@ export const textMessageController = async (req, res) => {
     }
 
     const chat = await Chat.findOne({ userId, _id: chatId });
-    chat.messages.push({
-      role: "user",
-      content: prompt,
-      timestamp: Date.now(),
-      isImage: false,
-    });
+
+    if (!chat) {
+      return res.json({ success: false, message: "Chat not found" });
+    }
+
+    if (!skipUserMessagePersist) {
+      chat.messages.push({
+        role: "user",
+        content: prompt,
+        timestamp: Date.now(),
+        isImage: false,
+      });
+    }
 
     // SSE headers for real-time streaming
     res.setHeader("Content-Type", "text/event-stream");
@@ -106,17 +113,23 @@ export const imageMessageController = async (req, res) => {
     if (req.user.credits < 2) {
       return res.json({ success: false, message: "Insufficient credits" });
     }
-    const { prompt, chatId, isPublished } = req.body;
+    const { prompt, chatId, isPublished, skipUserMessagePersist = false } = req.body;
     //find chat
     const chat = await Chat.findOne({ userId, _id: chatId });
 
+    if (!chat) {
+      return res.json({ success: false, message: "Chat not found" });
+    }
+
     //push user message
-    chat.messages.push({
-      role: "user",
-      content: prompt,
-      timestamp: Date.now(),
-      isImage: false,
-    });
+    if (!skipUserMessagePersist) {
+      chat.messages.push({
+        role: "user",
+        content: prompt,
+        timestamp: Date.now(),
+        isImage: false,
+      });
+    }
 
     // --- NEW: GEMINI 3.1 IMAGE GENERATION (Via generateContent) ---
     // Generate the image using Google Gemini 3.1 Flash Image Preview
@@ -163,3 +176,4 @@ export const imageMessageController = async (req, res) => {
     res.json({ success: false, message: error.message });
   }
 };
+
