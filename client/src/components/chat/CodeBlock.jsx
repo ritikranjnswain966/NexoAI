@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
-import { assets } from "../assets/assets";
+import { assets } from "../../assets/assets";
 
 const CodeBlock = ({ className, children }) => {
   const [copied, setCopied] = useState(false);
 
-  // Extract language from className (e.g. "language-javascript" → "javascript")
+  // Extract language from className (e.g. "language-javascript" -> "javascript")
   const match = /language-(\w+)/.exec(className || "");
   const language = match ? match[1] : "text";
 
@@ -85,4 +85,3 @@ const CodeBlock = ({ className, children }) => {
 };
 
 export default CodeBlock;
-

@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
-import { useAppContext } from '../context/AppContext'
-import { assets } from '../assets/assets'
+import { useAppContext } from '../../context/AppContext'
+import { assets } from '../../assets/assets'
 import moment from 'moment'
 import toast from 'react-hot-toast'
 
