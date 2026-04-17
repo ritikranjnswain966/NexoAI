@@ -2,18 +2,21 @@ import Stripe from "stripe";
 import Transaction from "../models/Transaction.js";
 import User from "../models/User.js";
 
+// Handle Stripe webhooks
 export const stripeWebhooks = async (request, response) => {
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
     const sig = request.headers['stripe-signature'];
 
     let event;
 
+    // Verify the webhook signature
     try {
         event = stripe.webhooks.constructEvent(request.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
     } catch (error) {
         return response.status(400).send(`Webhook Error: ${error.message}`);
     }
 
+    // Process the event
     try {
         // Handle different event types
         switch (event.type) {

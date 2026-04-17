@@ -126,7 +126,24 @@ const ChatMessage = ({
 }) => {
   const isUser = message.role === "user";
   const isDark = theme === "dark";
+  const isAssistantText = !isUser && !message.isImage;
   const showTyping = !isUser && !message.isImage && isLatest && isStreaming;
+
+  const stackClassName = isUser
+    ? "max-w-[78%] items-end"
+    : isAssistantText
+      ? "assistant-response-stack"
+      : "max-w-full items-start sm:max-w-[88%]";
+
+  const bodyClassName = isUser
+    ? isDark
+      ? "relative min-w-0 overflow-hidden rounded-[22px] border border-white/8 bg-[#2b2d31] px-4 py-3.5 text-slate-100"
+      : "relative min-w-0 overflow-hidden rounded-[22px] border border-slate-200 bg-slate-100 px-4 py-3.5 text-slate-800"
+    : message.isImage
+      ? isDark
+        ? "relative min-w-0 overflow-hidden rounded-[22px] border border-white/8 bg-white/[0.03] p-2"
+        : "relative min-w-0 overflow-hidden rounded-[22px] border border-slate-200 bg-white p-2"
+      : "assistant-response-content";
 
   return (
     <div
@@ -141,25 +158,9 @@ const ChatMessage = ({
       )}
 
       <div
-        className={`flex min-w-0 flex-col ${
-          isUser ? "max-w-[78%] items-end" : "max-w-full items-start sm:max-w-[88%]"
-        }`}
+        className={`flex min-w-0 flex-col ${stackClassName}`}
       >
-        <div
-          className={`relative min-w-0 overflow-hidden ${
-            message.isImage ? "p-2" : "px-4 py-3.5"
-          } ${
-            isUser
-              ? isDark
-                ? "rounded-[22px] border border-white/8 bg-[#2b2d31] text-slate-100"
-                : "rounded-[22px] border border-slate-200 bg-slate-100 text-slate-800"
-              : message.isImage
-                ? isDark
-                  ? "rounded-[22px] border border-white/8 bg-white/[0.03]"
-                  : "rounded-[22px] border border-slate-200 bg-white"
-                : "bg-transparent text-inherit"
-          }`}
-        >
+        <div className={bodyClassName}>
           <div className="relative min-w-0">
             {message.isImage ? (
               <img
@@ -174,7 +175,7 @@ const ChatMessage = ({
             ) : showTyping ? (
               <TypingText text={message.content} isStreaming={isStreaming} />
             ) : (
-              <div className="reset-tw chat-markdown text-[15px] leading-7 text-inherit">
+              <div className="reset-tw chat-markdown assistant-response-markdown">
                 <Markdown
                   components={markdownComponents}
                   remarkPlugins={[remarkGfm]}
@@ -186,7 +187,13 @@ const ChatMessage = ({
           </div>
         </div>
 
-        <div className={`mt-2 flex items-center gap-2 px-1 text-[11px] ${isDark ? "text-slate-500" : "text-slate-400"}`}>
+        <div
+          className={
+            isAssistantText
+              ? "assistant-response-meta"
+              : `mt-2 flex items-center gap-2 px-1 text-[11px] ${isDark ? "text-slate-500" : "text-slate-400"}`
+          }
+        >
           {!isUser && <span className="font-medium text-slate-300/90">Nexo</span>}
           <span>{moment(message.timestamp).fromNow()}</span>
         </div>
@@ -194,7 +201,7 @@ const ChatMessage = ({
         <div
           className={`grid transition-all duration-300 ${
             isUser ? "justify-end" : "justify-start"
-          } pointer-events-none grid-rows-[0fr] opacity-0 group-hover/message:grid-rows-[1fr] group-hover/message:opacity-100 group-hover/message:pointer-events-auto group-focus-within/message:grid-rows-[1fr] group-focus-within/message:opacity-100 group-focus-within/message:pointer-events-auto`}
+          } ${isAssistantText ? "assistant-response-actions" : ""} pointer-events-none grid-rows-[0fr] opacity-0 group-hover/message:grid-rows-[1fr] group-hover/message:opacity-100 group-hover/message:pointer-events-auto group-focus-within/message:grid-rows-[1fr] group-focus-within/message:opacity-100 group-focus-within/message:pointer-events-auto`}
         >
           <div className="overflow-hidden">
             <div className="mt-2 flex flex-wrap gap-2">

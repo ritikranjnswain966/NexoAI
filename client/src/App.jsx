@@ -17,7 +17,9 @@ const App = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { pathname } = useLocation();
 
-  if (pathname === "/loading" || loadingUser) return <Loading />;
+  if (pathname === "/loading" || loadingUser) {
+    return <Loading boot redirectHome={pathname === "/loading"} />;
+  }
 
   return (
     <>

@@ -46,7 +46,7 @@ const TypingText = ({ text, isStreaming }) => {
 
   return (
     <div className="min-w-0">
-      <div className="reset-tw chat-markdown">
+      <div className="reset-tw chat-markdown assistant-response-markdown assistant-response-markdown--streaming">
         <Markdown
           components={markdownComponents}
           remarkPlugins={[remarkGfm]}
